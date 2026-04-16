@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Plangine Tech - 14 Scenes Exhibition</title>
+    <title>建筑的智慧视界 - 线上全景展览</title>
     <!-- 核心库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/smiley-sans@1.1.1/font/SmileySans-Oblique.css">
@@ -404,7 +404,7 @@
             max-height: 100%;
             object-fit: contain;
             cursor: grab;
-            transition: transform 0.1s; 
+            transition: transform 0.1s ease-out; 
             transform-origin: center center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             border-radius: 10px;
@@ -412,9 +412,9 @@
             -webkit-user-drag: none;
             pointer-events: none;
             
-            /* 【核心修复1】：移除强制的 3D 加速和特殊的对比度优化，防止 iOS 将其变成低分辨率位图拉伸 */
-            will-change: transform; 
-            /* 【终极清晰度】：向浏览器请求最高质量的图片缩放渲染算法 */
+            /* 【终极清晰度突破】：绝对不能写 will-change: transform; 
+               否则 iOS 强制在放大前将图片缓存为 1x 倍率的低清静态贴图！删掉它才能激活实时高清重绘 */
+            image-rendering: -webkit-optimize-contrast;
             image-rendering: high-quality;
         }
         #lightbox-img:active { cursor: grabbing; }
@@ -751,7 +751,7 @@
     
     loadBtn.addEventListener('click', async () => {
         loadBtn.style.pointerEvents = 'none';
-        loadBtn.innerText = '正在初始化视频引擎...';
+        loadBtn.innerText = '正在初始化展览核心引擎...';
         document.getElementById('loading-overlay').style.opacity = '1';
         
         if (typeof VIDEO_B64 !== 'undefined') {
@@ -792,11 +792,9 @@
         }, 600);
     });
 
-    // 【核心修复2】：提炼了专门的画布尺寸计算函数，防止触发 iOS 内存超载限制
     function updateCanvasSize() {
         if (!seqVideo.videoWidth) return;
         
-        // 限制最大 DPR 为 2，避免 iPhone 算出怪物级别的分辨率（如 5760px）
         const dpr = Math.min(window.devicePixelRatio || 1, 2); 
         const vW = seqVideo.videoWidth;
         const vH = seqVideo.videoHeight;
@@ -804,9 +802,8 @@
         let targetW = vW * dpr;
         let targetH = vH * dpr;
 
-        // 如果算出来的画布尺寸超过 3000，iOS Safari 会为了省内存强制把画布压缩到极低清晰度
-        // 所以我们设定一个安全阈值，等比例缩小 Target
-        const MAX_SIZE = 3000;
+        // 【终极清晰度】将安全阈值从 3000 提升到移动端硬件的绝对安全边界 4096
+        const MAX_SIZE = 4096;
         if (targetW > MAX_SIZE) {
             const ratio = MAX_SIZE / targetW;
             targetW = MAX_SIZE;
@@ -818,12 +815,17 @@
         canvasBg.width = targetW;
         canvasBg.height = targetH;
         
-        // 重置矩阵并设置新的缩放比例，这样后续 drawImage 依旧可以传入原始的 vW/vH 作为坐标
         ctx.setTransform(1, 0, 0, 1, 0, 0); 
         ctxBg.setTransform(1, 0, 0, 1, 0, 0);
         
         ctx.scale(targetW / vW, targetH / vH);
         ctxBg.scale(targetW / vW, targetH / vH);
+        
+        // 【终极清晰度】强制开启 Canvas 底层的高质量图像抗锯齿/双三次插值算法
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctxBg.imageSmoothingEnabled = true;
+        ctxBg.imageSmoothingQuality = "high";
         
         ctx.drawImage(seqVideo, 0, 0, vW, vH);
         ctxBg.drawImage(seqVideo, 0, 0, vW, vH);
@@ -1164,7 +1166,6 @@
         updateTransform();
     }
     
-    // 【核心修复3】：将 translate3d 降级为 translate，破除 iOS 强制的低分层级
     function updateTransform() {
         const rx = Math.round(panX);
         const ry = Math.round(panY);
@@ -1257,11 +1258,11 @@
         updateTransform();
         
         setTimeout(() => {
-            lbImg.style.transition = 'transform 0.1s'; 
+            lbImg.style.transition = 'transform 0.1s ease-out'; 
         }, 300);
     });
 
-    const GUESTBOOK_KEY = 'plangine_guestbook';
+    const GUESTBOOK_KEY = 'wisdom_arch_guestbook';
     function loadGuestbook() {
         const list = document.getElementById('gb-list');
         list.innerHTML = '';

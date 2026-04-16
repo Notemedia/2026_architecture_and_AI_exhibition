@@ -30,11 +30,10 @@
             background-color: var(--bg-color);
             font-family: var(--font-main);
             color: var(--text-main);
-            overflow: hidden; /* 使用虚拟滚动，隐藏原生滚动条 */
+            overflow: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 极简上传层 */
         #upload-container {
             position: fixed;
             inset: 0;
@@ -73,7 +72,6 @@
             background: #0077ed;
         }
 
-        /* 画布容器 */
         #scroll-wrapper {
             display: none;
             opacity: 0;
@@ -97,7 +95,6 @@
             overflow: hidden;
         }
 
-        /* 氛围背景层 */
         #bg-canvas {
             position: absolute;
             inset: 0;
@@ -105,12 +102,11 @@
             height: 100%;
             object-fit: cover;
             filter: blur(60px) brightness(0.7);
-            transform: scale(1.1); /* 消除边缘白边 */
+            transform: scale(1.1);
             opacity: 0.7;
             z-index: 1;
         }
 
-        /* 主展板层 */
         #main-canvas {
             position: relative;
             z-index: 2;
@@ -119,7 +115,6 @@
             object-fit: contain;
         }
 
-        /* 场景指示器 (DOTS) */
         .scene-nav {
             position: fixed;
             right: 40px;
@@ -173,7 +168,6 @@
             color: var(--accent-color);
         }
 
-        /* 底部 HUD */
         .hud {
             position: fixed;
             bottom: 40px;
@@ -196,7 +190,6 @@
         .hud span { color: var(--accent-color); font-weight: 600; }
         .hud-title { color: white; font-weight: 500; font-size: 15px; }
 
-        /* 全局加载条 */
         .progress-container {
             position: fixed;
             bottom: 0;
@@ -230,7 +223,6 @@
             transition: width 0.3s;
         }
 
-        /* 查看展板按钮 */
         #board-btn {
             position: fixed;
             bottom: 40px;
@@ -264,7 +256,6 @@
             transform: translateY(-2px);
         }
 
-        /* 滑动引导 */
         #scroll-hint {
             position: fixed;
             bottom: 110px;
@@ -272,7 +263,7 @@
             transform: translateX(-50%);
             z-index: 100;
             text-align: center;
-            color: rgba(0, 0, 0, 0.9); /* 改为黑色 */
+            color: rgba(0, 0, 0, 0.9);
             font-size: 15px;
             letter-spacing: 2px;
             transition: all 0.8s ease;
@@ -281,7 +272,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            text-shadow: 0 0 5px rgba(255,255,255,0.4); /* 增加微妙的亮边防止在极黑背景消失 */
+            text-shadow: 0 0 5px rgba(255,255,255,0.4);
         }
         
         #scroll-hint svg {
@@ -295,10 +286,9 @@
             50% { transform: translateY(10px); opacity: 1; }
         }
 
-        /* ====== 中心交互区 ====== */
         .portal-container {
             position: fixed;
-            inset: 0; /* 全屏覆盖以支持绝对定位 */
+            inset: 0;
             z-index: 95;
             opacity: 0;
             pointer-events: none;
@@ -311,7 +301,7 @@
         }
 
         .portal-dot-item {
-            position: absolute; /* 切换为绝对定位 */
+            position: absolute;
             transform: translate(-50%, -50%);
             cursor: pointer;
             display: flex;
@@ -321,7 +311,7 @@
         }
 
         .portal-dot-item:hover {
-            transform: translate(-50%, -60%); /* hover 时向上悬浮更多一点点 */
+            transform: translate(-50%, -60%);
         }
 
         .portal-arrow-core {
@@ -347,7 +337,6 @@
             transition: transform 0.3s ease;
         }
 
-        /* 呼吸光环 */
         .portal-arrow-glow {
             position: absolute;
             inset: -4px;
@@ -370,11 +359,11 @@
         }
 
         .portal-dot-item:hover .portal-arrow-core svg {
-            transform: translateY(-4px); /* 向上滑动感 */
+            transform: translateY(-4px);
         }
 
         .portal-label {
-            display: none; /* 去掉展板文字 */
+            display: none;
         }
 
         .portal-dot-item:hover .portal-label {
@@ -382,7 +371,6 @@
             background: var(--accent-color);
         }
 
-        /* ====== Lightbox 全屏查看器 ====== */
         #lightbox {
             position: fixed;
             inset: 0;
@@ -408,7 +396,7 @@
             justify-content: center;
             align-items: center;
             position: relative;
-            overflow: hidden; /* 拖拽边界隐藏 */
+            overflow: hidden;
         }
 
         #lightbox-img {
@@ -416,29 +404,25 @@
             max-height: 100%;
             object-fit: contain;
             cursor: grab;
-            transition: transform 0.1s; /* smooth panning */
+            transition: transform 0.1s; 
             transform-origin: center center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             border-radius: 10px;
             user-select: none;
             -webkit-user-drag: none;
-            pointer-events: none; /* 让鼠标事件穿透到上层遮罩 */
-            /* 优化：提升清晰度，防止移动端模糊 */
-            image-rendering: auto;
-            image-rendering: -webkit-optimize-contrast;
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            transform-style: preserve-3d;
+            pointer-events: none;
+            
+            /* 【核心修复1】：移除强制的 3D 加速和特殊的对比度优化，防止 iOS 将其变成低分辨率位图拉伸 */
+            will-change: transform; 
         }
         #lightbox-img:active { cursor: grabbing; }
 
-        /* 保护遮罩层 */
         #lb-protective-overlay {
             position: absolute;
             inset: 0;
             z-index: 10;
             cursor: grab;
-            touch-action: none; /* 禁用 Edge/移动端的原生缩放 */
+            touch-action: none;
         }
         #lb-protective-overlay:active { cursor: grabbing; }
 
@@ -493,7 +477,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ====== 留言板 (场景13) ====== */
         #guestbook-panel {
             position: fixed;
             top: 40px;
@@ -592,7 +575,6 @@
         }
         .gb-close:hover { color: white; transform: scale(1.1); }
 
-        /* ====== 手机端适配 ====== */
         #landscape-lock-hint {
             position: fixed;
             inset: 0;
@@ -640,7 +622,6 @@
             .upload-card { padding: 30px; border-radius: 20px; }
             .upload-card h1 { font-size: 32px; }
         }
-
     </style>
 </head>
 <body>
@@ -654,7 +635,6 @@
         </div>
     </div>
 
-    <!-- 顶部进度条 -->
     <div class="progress-container" id="scroll-progress-wrapper">
         <div class="progress-bar" id="scroll-progress-bar"></div>
     </div>
@@ -686,19 +666,13 @@
             查看高清展板
         </button>
 
-        <!-- 中心交互蓝点容器 -->
-        <div id="portal-container" class="portal-container">
-            <!-- JS 动态填充点位 -->
-        </div>
+        <div id="portal-container" class="portal-container"></div>
     </div>
 
-    <!-- 留言板 -->
     <div id="guestbook-panel">
         <div class="gb-close" onclick="closeGuestbook()">×</div>
         <div class="gb-header">观展留言</div>
-        <div class="gb-list" id="gb-list">
-            <!-- 留言列表将动态生成 -->
-        </div>
+        <div class="gb-list" id="gb-list"></div>
         <form class="gb-form" id="gb-form" onsubmit="submitGuestbook(event)">
             <input type="text" class="name-input" id="gb-name" placeholder="您的昵称" required maxlength="10">
             <input type="text" id="gb-content" placeholder="写下您对本次展览的感想..." required>
@@ -706,7 +680,6 @@
         </form>
     </div>
 
-    <!-- 锁定横屏提示层 -->
     <div id="landscape-lock-hint">
         <div class="lock-hint-content">
             <div class="phone-rotate-icon">
@@ -722,7 +695,6 @@
         </div>
     </div>
 
-    <!-- Lightbox -->
     <div id="lightbox">
         <div class="lb-close" onclick="closeLightbox()">×</div>
         <div class="lb-nav lb-prev" onclick="changeLightboxImg(-1)">‹</div>
@@ -735,730 +707,628 @@
         <div class="lb-indicator"><span id="lb-current">1</span> / <span id="lb-total">3</span></div>
     </div>
 
-    
 <script>
-    // --- BASE64 DATA ---
     const VIDEO_B64 = "./assets/video_1.mp4";
     const SCENE_IMAGES_B64 = ["./assets/image_1.webp","./assets/image_2.webp","./assets/image_3.webp","./assets/image_4.webp","./assets/image_5.webp","./assets/image_6.webp","./assets/image_7.webp","./assets/image_8.webp","./assets/image_9.webp","./assets/image_10.webp","./assets/image_11.webp","./assets/image_12.webp","./assets/image_13.webp","./assets/image_14.webp","./assets/image_15.webp"];
     const BOARDS_B64 = {"1.webp":"./assets/image_16.webp","10.webp":"./assets/image_17.webp","11.webp":"./assets/image_18.webp","12.webp":"./assets/image_19.webp","13.webp":"./assets/image_20.webp","14.webp":"./assets/image_21.webp","15.webp":"./assets/image_22.webp","16.webp":"./assets/image_23.webp","17.webp":"./assets/image_24.webp","18.webp":"./assets/image_25.webp","19.webp":"./assets/image_26.webp","2.webp":"./assets/image_27.webp","20.webp":"./assets/image_28.webp","21.webp":"./assets/image_29.webp","22.webp":"./assets/image_30.webp","23.webp":"./assets/image_31.webp","24.webp":"./assets/image_32.webp","25.webp":"./assets/image_33.webp","26.webp":"./assets/image_34.webp","27.webp":"./assets/image_35.webp","28.webp":"./assets/image_36.webp","29.webp":"./assets/image_37.webp","3.webp":"./assets/image_38.webp","4.webp":"./assets/image_39.webp","5.webp":"./assets/image_40.webp","6.webp":"./assets/image_41.webp","7.webp":"./assets/image_42.webp","8.webp":"./assets/image_43.webp","9.webp":"./assets/image_44.webp"};
 
-        // 核心配置
-        const TOTAL_FRAMES = 590;
-        const NUM_SCENES = 15;
-        const SCENE_TITLES = [
-            '鸟瞰全景', '走近展厅', '封面·引言', '作品诞生',
-            '书籍方法论', '长文论述', '展区过渡', '作品系列(一)',
-            '作品系列(二)', 'AI实验', '作品系列(三)', '画作展示',
-            '结语过渡', '留言签名', '全景尾声'
-        ];
+    const TOTAL_FRAMES = 590;
+    const NUM_SCENES = 15;
+    const SCENE_TITLES = [
+        '鸟瞰全景', '走近展厅', '封面·引言', '作品诞生',
+        '书籍方法论', '长文论述', '展区过渡', '作品系列(一)',
+        '作品系列(二)', 'AI实验', '作品系列(三)', '画作展示',
+        '结语过渡', '留言签名', '全景尾声'
+    ];
+    
+    const BOARD_MAP = {
+        3: [{ file: '1.webp', x: 50.0, y: 72.5 }, { file: '2.webp', x: 65.0, y: 72.5 }],
+        4: [{ file: '3.webp', x: 43.1, y: 72.5 }, { file: '4.webp', x: 65.8, y: 72.5 }],
+        5: [{ file: '5.webp', x: 30.8, y: 72.5 }, { file: '6.webp', x: 49.8, y: 72.5 }, { file: '7.webp', x: 76.8, y: 72.5 }],
+        6: [{ file: '8.webp', x: 31.0, y: 72.5 }, { file: '9.webp', x: 50.0, y: 72.5 }, { file: '26.webp', x: 69.0, y: 72.5 }],
+        8: [{ file: '23.webp', x: 21.0, y: 72.5 }, { file: '24.webp', x: 40.5, y: 72.5 }, { file: '25.webp', x: 60.0, y: 72.5 }, { file: '20.webp', x: 79.5, y: 72.5 }],
+        9: [{ file: '18.webp', x: 21.2, y: 72.5 }, { file: '19.webp', x: 40.8, y: 72.5 }, { file: '21.webp', x: 59.2, y: 72.5 }, { file: '22.webp', x: 78.8, y: 72.5 }],
+        10: [{ file: '29.webp', x: 31.8, y: 72.5 }, { file: '28.webp', x: 50.0, y: 72.5 }, { file: '27.webp', x: 71.5, y: 72.5 }],
+        11: [{ file: '14.webp', x: 23.0, y: 72.5 }, { file: '15.webp', x: 41.5, y: 72.5 }, { file: '16.webp', x: 59.5, y: 72.5 }, { file: '17.webp', x: 79.0, y: 72.5 }],
+        12: [{ file: '12.webp', x: 21.0, y: 72.5 }, { file: '10.webp', x: 40.5, y: 72.5 }, { file: '11.webp', x: 59.0, y: 72.5 }, { file: '13.webp', x: 78.5, y: 72.5 }]
+    };
+
+    let sceneImages = [];
+    let globalTargetProgress = 0;  
+    let globalCurrentProgress = 0; 
+    let isSnapping = false;
+    let snapTimer = null;
+    let currentSceneIndex = 1;
+
+    const loadBtn = document.getElementById('embedded-load-btn');
+    const canvas = document.getElementById('main-canvas');
+    const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: false });
+    const canvasBg = document.getElementById('bg-canvas');
+    const ctxBg = canvasBg.getContext('2d', { alpha: false });
+    const seqVideo = document.getElementById('sequence-video');
+    
+    loadBtn.addEventListener('click', async () => {
+        loadBtn.style.pointerEvents = 'none';
+        loadBtn.innerText = '正在初始化视频引擎...';
+        document.getElementById('loading-overlay').style.opacity = '1';
         
-        // 展板映射表 (SceneIndex 1-15 => webp objects with optional x, y)
-        const BOARD_MAP = {
-            3: [
-                { file: '1.webp', x: 50.0, y: 72.5 }, 
-                { file: '2.webp', x: 65.0, y: 72.5 }
-            ],
-            4: [
-                { file: '3.webp', x: 43.1, y: 72.5 }, 
-                { file: '4.webp', x: 65.8, y: 72.5 }
-            ],
-            5: [
-                { file: '5.webp', x: 30.8, y: 72.5 }, 
-                { file: '6.webp', x: 49.8, y: 72.5 }, 
-                { file: '7.webp', x: 76.8, y: 72.5 }
-            ],
-            6: [
-                { file: '8.webp', x: 31.0, y: 72.5 }, 
-                { file: '9.webp', x: 50.0, y: 72.5 }, 
-                { file: '26.webp', x: 69.0, y: 72.5 }
-            ],
-            8: [
-                { file: '23.webp', x: 21.0, y: 72.5 }, 
-                { file: '24.webp', x: 40.5, y: 72.5 }, 
-                { file: '25.webp', x: 60.0, y: 72.5 }, 
-                { file: '20.webp', x: 79.5, y: 72.5 }
-            ],
-            9:  [
-                { file: '18.webp', x: 21.2, y: 72.5 }, 
-                { file: '19.webp', x: 40.8, y: 72.5 }, 
-                { file: '21.webp', x: 59.2, y: 72.5 }, 
-                { file: '22.webp', x: 78.8, y: 72.5 }
-            ],
-            10: [
-                { file: '29.webp', x: 31.8, y: 72.5 }, 
-                { file: '28.webp', x: 50.0, y: 72.5 }, 
-                { file: '27.webp', x: 71.5, y: 72.5 }
-            ],
-            11: [
-                { file: '14.webp', x: 23.0, y: 72.5 }, 
-                { file: '15.webp', x: 41.5, y: 72.5 }, 
-                { file: '16.webp', x: 59.5, y: 72.5 }, 
-                { file: '17.webp', x: 79.0, y: 72.5 }
-            ],
-            12: [
-                { file: '12.webp', x: 21.0, y: 72.5 }, 
-                { file: '10.webp', x: 40.5, y: 72.5 }, 
-                { file: '11.webp', x: 59.0, y: 72.5 }, 
-                { file: '13.webp', x: 78.5, y: 72.5 }
-            ]
-        };
+        if (typeof VIDEO_B64 !== 'undefined') {
+            seqVideo.src = VIDEO_B64;
+        } else {
+            seqVideo.src = 'frames_seq.mp4';
+        }
 
-        // 状态变量
-        let sceneImages = [];
-        let globalTargetProgress = 0;  // 逻辑靶向进度 (0 到 NUM_SCENES-1)
-        let globalCurrentProgress = 0; // 平滑跟随进度
-        let isSnapping = false;
-        let snapTimer = null;
-        let currentSceneIndex = 1;
-
-        const loadBtn = document.getElementById('embedded-load-btn');
-        const canvas = document.getElementById('main-canvas');
-        const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: false });
-        const canvasBg = document.getElementById('bg-canvas');
-        const ctxBg = canvasBg.getContext('2d', { alpha: false });
-        
-        // --- 1. 加载序列 ---
-        const seqVideo = document.getElementById('sequence-video');
-        
-        loadBtn.addEventListener('click', async () => {
-            loadBtn.style.pointerEvents = 'none';
-            loadBtn.innerText = '正在初始化视频引擎...';
-            document.getElementById('loading-overlay').style.opacity = '1';
-            
-            // VIDEO_B64 将由打包工具注入，这里处理兼容
-            if (typeof VIDEO_B64 !== 'undefined') {
-                seqVideo.src = VIDEO_B64;
-            } else {
-                seqVideo.src = 'frames_seq.mp4';
-            }
-
-            // 加载高清场景图
-            if (typeof SCENE_IMAGES_B64 !== 'undefined') {
-                SCENE_IMAGES_B64.forEach(b64 => {
-                    const img = new Image();
-                    img.src = b64;
-                    sceneImages.push(img);
-                });
-            }
-
-            await new Promise(r => {
-                seqVideo.onloadeddata = () => {
-                    r();
-                };
-                seqVideo.load();
+        if (typeof SCENE_IMAGES_B64 !== 'undefined') {
+            SCENE_IMAGES_B64.forEach(b64 => {
+                const img = new Image();
+                img.src = b64;
+                sceneImages.push(img);
             });
+        }
 
-            await new Promise(r => setTimeout(r, 200));
-            
-            loadBtn.innerText = '加载完成';
-            document.getElementById('loading-overlay').style.opacity = '0';
-            
-            // 请求全屏 (增强沉浸感)
-            try {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
-                }
-            } catch (e) {
-                console.log("Fullscreen request failed");
-            }
-
-            setTimeout(() => {
-                initUI();
-                startRenderLoop();
-            }, 600);
+        await new Promise(r => {
+            seqVideo.onloadeddata = () => r();
+            seqVideo.load();
         });
 
-        // --- 2. 初始化 UI ---
-        function initUI() {
-            // 设置画布比例为视频比例，并绘制首帧
-            if(seqVideo.videoWidth) {
-                const dpr = window.devicePixelRatio || 1;
-                const vW = seqVideo.videoWidth;
-                const vH = seqVideo.videoHeight;
-                
-                canvas.width = vW * dpr;
-                canvas.height = vH * dpr;
-                canvasBg.width = vW * dpr;
-                canvasBg.height = vH * dpr;
-                
-                // 确保样式大小正确
-                canvas.style.width = '100%';
-                canvas.style.height = '100%';
-                canvasBg.style.width = '100%';
-                canvasBg.style.height = '100%';
-
-                ctx.scale(dpr, dpr);
-                ctxBg.scale(dpr, dpr);
-                
-                ctx.drawImage(seqVideo, 0, 0, vW, vH);
-                ctxBg.drawImage(seqVideo, 0, 0, vW, vH);
+        await new Promise(r => setTimeout(r, 200));
+        
+        loadBtn.innerText = '加载完成';
+        document.getElementById('loading-overlay').style.opacity = '0';
+        
+        try {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
             }
-            
-            const nav = document.getElementById('scene-nav');
-            for(let i=0; i<NUM_SCENES; i++) {
-                const dot = document.createElement('div');
-                dot.className = `scene-dot ${i===0?'active':''}`;
-                dot.innerHTML = `<span class="scene-label">${SCENE_TITLES[i]}</span>`;
-                dot.onclick = () => jumpToScene(i);
-                nav.appendChild(dot);
-            }
+        } catch (e) {}
 
-            document.getElementById('upload-container').style.transform = "translateY(-100%)";
-            const wrapper = document.getElementById('scroll-wrapper');
-            wrapper.style.display = "block";
-            
-            setTimeout(() => {
-                wrapper.style.opacity = "1";
-                document.getElementById('scroll-progress-wrapper').style.opacity = "1";
-            }, 100);
+        setTimeout(() => {
+            initUI();
+            startRenderLoop();
+        }, 600);
+    });
 
-            loadGuestbook();
+    // 【核心修复2】：提炼了专门的画布尺寸计算函数，防止触发 iOS 内存超载限制
+    function updateCanvasSize() {
+        if (!seqVideo.videoWidth) return;
+        
+        // 限制最大 DPR 为 2，避免 iPhone 算出怪物级别的分辨率（如 5760px）
+        const dpr = Math.min(window.devicePixelRatio || 1, 2); 
+        const vW = seqVideo.videoWidth;
+        const vH = seqVideo.videoHeight;
+        
+        let targetW = vW * dpr;
+        let targetH = vH * dpr;
+
+        // 如果算出来的画布尺寸超过 3000，iOS Safari 会为了省内存强制把画布压缩到极低清晰度
+        // 所以我们设定一个安全阈值，等比例缩小 Target
+        const MAX_SIZE = 3000;
+        if (targetW > MAX_SIZE) {
+            const ratio = MAX_SIZE / targetW;
+            targetW = MAX_SIZE;
+            targetH = targetH * ratio;
         }
 
-        function jumpToScene(index) {
-            clearTimeout(snapTimer);
-            globalTargetProgress = index;
+        canvas.width = targetW;
+        canvas.height = targetH;
+        canvasBg.width = targetW;
+        canvasBg.height = targetH;
+        
+        // 重置矩阵并设置新的缩放比例，这样后续 drawImage 依旧可以传入原始的 vW/vH 作为坐标
+        ctx.setTransform(1, 0, 0, 1, 0, 0); 
+        ctxBg.setTransform(1, 0, 0, 1, 0, 0);
+        
+        ctx.scale(targetW / vW, targetH / vH);
+        ctxBg.scale(targetW / vW, targetH / vH);
+        
+        ctx.drawImage(seqVideo, 0, 0, vW, vH);
+        ctxBg.drawImage(seqVideo, 0, 0, vW, vH);
+    }
+
+    function initUI() {
+        updateCanvasSize();
+        
+        const nav = document.getElementById('scene-nav');
+        for(let i=0; i<NUM_SCENES; i++) {
+            const dot = document.createElement('div');
+            dot.className = `scene-dot ${i===0?'active':''}`;
+            dot.innerHTML = `<span class="scene-label">${SCENE_TITLES[i]}</span>`;
+            dot.onclick = () => jumpToScene(i);
+            nav.appendChild(dot);
         }
 
-        // --- 3. 自定义物理滚动与阻尼系统 ---
-        function getDampedProgress(p) {
-            const segment = 1 / (NUM_SCENES - 1);
-            let i = Math.floor(p * (NUM_SCENES - 1));
-            if (i >= NUM_SCENES - 1) i = NUM_SCENES - 2;
-            let localP = (p - i * segment) / segment;
-            
-            localP = Math.max(0, Math.min(1, localP));
-            // 使用 Sine Easing 替代 Power3，获得更丝滑的进出动态
-            const easedLocalP = gsap.parseEase("sine.inOut")(localP);
-            return (i + easedLocalP) * segment;
-        }
+        document.getElementById('upload-container').style.transform = "translateY(-100%)";
+        const wrapper = document.getElementById('scroll-wrapper');
+        wrapper.style.display = "block";
+        
+        setTimeout(() => {
+            wrapper.style.opacity = "1";
+            document.getElementById('scroll-progress-wrapper').style.opacity = "1";
+        }, 100);
 
-        window.addEventListener('wheel', (e) => {
-            if(document.getElementById('lightbox').classList.contains('open')) return;
+        loadGuestbook();
+    }
 
-            isSnapping = false;
-            clearTimeout(snapTimer);
-            
-            const wheelRatio = 0.0015; 
-            globalTargetProgress += e.deltaY * wheelRatio;
-            globalTargetProgress = Math.max(0, Math.min(NUM_SCENES - 1, globalTargetProgress));
-            
-            snapTimer = setTimeout(() => {
-                isSnapping = true;
-                const nearest = Math.round(globalTargetProgress);
-                gsap.to(window, {
-                    duration: 1.0,
-                    globalTargetProgress: nearest,
-                    ease: "power2.out"
-                });
-            }, 250);
+    window.addEventListener('resize', updateCanvasSize);
 
-        }, {passive: false});
+    function jumpToScene(index) {
+        clearTimeout(snapTimer);
+        globalTargetProgress = index;
+    }
 
-        // --- 3.5 触摸滑动支持 (手机端实时随动) ---
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let initialProgress = 0;
-        window.addEventListener('touchstart', (e) => {
-            if(document.getElementById('lightbox').classList.contains('open')) return;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            initialProgress = globalTargetProgress;
-            isSnapping = false;
-        }, {passive: true});
+    function getDampedProgress(p) {
+        const segment = 1 / (NUM_SCENES - 1);
+        let i = Math.floor(p * (NUM_SCENES - 1));
+        if (i >= NUM_SCENES - 1) i = NUM_SCENES - 2;
+        let localP = (p - i * segment) / segment;
+        
+        localP = Math.max(0, Math.min(1, localP));
+        const easedLocalP = gsap.parseEase("sine.inOut")(localP);
+        return (i + easedLocalP) * segment;
+    }
 
-        window.addEventListener('touchmove', (e) => {
-            if(document.getElementById('lightbox').classList.contains('open')) return;
-            
-            const dx = e.touches[0].clientX - touchStartX;
-            const dy = e.touches[0].clientY - touchStartY;
-            const isLandscape = window.innerWidth > window.innerHeight;
-            
-            // 实时更新进度，灵敏度系数 0.005 可根据需求调节
-            const sensitivity = 0.005;
-            if (isLandscape) {
-                globalTargetProgress = initialProgress - (dx * sensitivity);
-            } else {
-                globalTargetProgress = initialProgress - (dy * sensitivity);
-            }
-            globalTargetProgress = Math.max(0, Math.min(NUM_SCENES - 1, globalTargetProgress));
-        }, {passive: true});
+    window.addEventListener('wheel', (e) => {
+        if(document.getElementById('lightbox').classList.contains('open')) return;
 
-        window.addEventListener('touchend', (e) => {
-            if(document.getElementById('lightbox').classList.contains('open')) return;
+        isSnapping = false;
+        clearTimeout(snapTimer);
+        
+        const wheelRatio = 0.0015; 
+        globalTargetProgress += e.deltaY * wheelRatio;
+        globalTargetProgress = Math.max(0, Math.min(NUM_SCENES - 1, globalTargetProgress));
+        
+        snapTimer = setTimeout(() => {
             isSnapping = true;
             const nearest = Math.round(globalTargetProgress);
             gsap.to(window, {
-                duration: 1.5, // 增加动画时长，让吸附过程更平稳厚重
+                duration: 1.0,
                 globalTargetProgress: nearest,
                 ease: "power2.out"
             });
-        }, {passive: true});
+        }, 250);
 
-        window.addEventListener('keydown', (e) => {
-            if(document.getElementById('lightbox').classList.contains('open')) {
-                if(e.key === 'Escape') closeLightbox();
-                if(e.key === 'ArrowRight') changeLightboxImg(1);
-                if(e.key === 'ArrowLeft') changeLightboxImg(-1);
-                return;
-            }
-            
-            if(e.target.tagName.toLowerCase() === 'input') return;
+    }, {passive: false});
 
-            let changed = false;
-            let nearest = Math.round(globalTargetProgress);
-            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-                globalTargetProgress = Math.min(NUM_SCENES - 1, nearest + 1);
-                changed = true;
-            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-                globalTargetProgress = Math.max(0, nearest - 1);
-                changed = true;
-            }
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let initialProgress = 0;
+    window.addEventListener('touchstart', (e) => {
+        if(document.getElementById('lightbox').classList.contains('open')) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        initialProgress = globalTargetProgress;
+        isSnapping = false;
+    }, {passive: true});
 
-            if (changed) {
-                clearTimeout(snapTimer);
-                gsap.to(window, {
-                    duration: 5.0, // 加慢速度到 0.2 倍左右
-                    globalTargetProgress: globalTargetProgress,
-                    ease: "power2.inOut" // 慢速跳转使用更柔和的曲线
-                });
-            }
+    window.addEventListener('touchmove', (e) => {
+        if(document.getElementById('lightbox').classList.contains('open')) return;
+        
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        const isLandscape = window.innerWidth > window.innerHeight;
+        
+        const sensitivity = 0.005;
+        if (isLandscape) {
+            globalTargetProgress = initialProgress - (dx * sensitivity);
+        } else {
+            globalTargetProgress = initialProgress - (dy * sensitivity);
+        }
+        globalTargetProgress = Math.max(0, Math.min(NUM_SCENES - 1, globalTargetProgress));
+    }, {passive: true});
+
+    window.addEventListener('touchend', (e) => {
+        if(document.getElementById('lightbox').classList.contains('open')) return;
+        isSnapping = true;
+        const nearest = Math.round(globalTargetProgress);
+        gsap.to(window, {
+            duration: 1.5,
+            globalTargetProgress: nearest,
+            ease: "power2.out"
         });
+    }, {passive: true});
 
-        // 渲染循环
-        function startRenderLoop() {
-            let lastDampedP = -1;
-            function loop() {
-                // 增加阻尼感，下调至 0.04 以获得更“厚重”且平缓的视觉连贯感，减少跳转感
-                globalCurrentProgress += (globalTargetProgress - globalCurrentProgress) * 0.04;
+    window.addEventListener('keydown', (e) => {
+        if(document.getElementById('lightbox').classList.contains('open')) {
+            if(e.key === 'Escape') closeLightbox();
+            if(e.key === 'ArrowRight') changeLightboxImg(1);
+            if(e.key === 'ArrowLeft') changeLightboxImg(-1);
+            return;
+        }
+        
+        if(e.target.tagName.toLowerCase() === 'input') return;
 
-                const progressNorm = globalCurrentProgress / (NUM_SCENES - 1); // 0 to 1
-                const dampedP = getDampedProgress(progressNorm);
-                
-                // 只有当进度发生微小偏移时才重绘，节省性能
-                if (Math.abs(dampedP - lastDampedP) > 0.00001) {
-                    // --- 渲染逻辑 (移除重影/混合) ---
-                    const sceneIdxFloat = dampedP * (NUM_SCENES - 1);
-                    const sceneIdx = Math.round(sceneIdxFloat);
-                    const distToScene = Math.abs(sceneIdxFloat - sceneIdx);
-                    
-                    const switchThreshold = 0.05; // 只有非常接近时才切换到静态图
+        let changed = false;
+        let nearest = Math.round(globalTargetProgress);
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+            globalTargetProgress = Math.min(NUM_SCENES - 1, nearest + 1);
+            changed = true;
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+            globalTargetProgress = Math.max(0, nearest - 1);
+            changed = true;
+        }
 
-                    // 1. 绘制底层动力视频
-                    if (seqVideo.duration) {
-                        let t = dampedP * seqVideo.duration;
-                        t = Math.max(0, Math.min(seqVideo.duration - 0.05, t));
-                        if (Math.abs(seqVideo.currentTime - t) > 0.005) {
-                            seqVideo.currentTime = t;
-                        }
+        if (changed) {
+            clearTimeout(snapTimer);
+            gsap.to(window, {
+                duration: 5.0, 
+                globalTargetProgress: globalTargetProgress,
+                ease: "power2.inOut"
+            });
+        }
+    });
+
+    function startRenderLoop() {
+        let lastDampedP = -1;
+        function loop() {
+            globalCurrentProgress += (globalTargetProgress - globalCurrentProgress) * 0.04;
+            const progressNorm = globalCurrentProgress / (NUM_SCENES - 1);
+            const dampedP = getDampedProgress(progressNorm);
+            
+            if (Math.abs(dampedP - lastDampedP) > 0.00001) {
+                const sceneIdxFloat = dampedP * (NUM_SCENES - 1);
+                const sceneIdx = Math.round(sceneIdxFloat);
+                const distToScene = Math.abs(sceneIdxFloat - sceneIdx);
+                const switchThreshold = 0.05; 
+
+                if (seqVideo.duration) {
+                    let t = dampedP * seqVideo.duration;
+                    t = Math.max(0, Math.min(seqVideo.duration - 0.05, t));
+                    if (Math.abs(seqVideo.currentTime - t) > 0.005) {
+                        seqVideo.currentTime = t;
                     }
-                    // 指定绘制尺寸以匹配 ctx.scale
-                    ctx.drawImage(seqVideo, 0, 0, seqVideo.videoWidth, seqVideo.videoHeight);
-
-                    // 2. 只有在静止或极其接近场景点时才覆盖高清图
-                    if (distToScene < switchThreshold && sceneImages[sceneIdx] && sceneImages[sceneIdx].complete) {
-                        ctx.drawImage(sceneImages[sceneIdx], 0, 0, seqVideo.videoWidth, seqVideo.videoHeight);
-                    }
-                    
-                    updateUI(0, dampedP);
-                    lastDampedP = dampedP;
                 }
+                
+                ctx.drawImage(seqVideo, 0, 0, seqVideo.videoWidth, seqVideo.videoHeight);
 
-                requestAnimationFrame(loop);
+                if (distToScene < switchThreshold && sceneImages[sceneIdx] && sceneImages[sceneIdx].complete) {
+                    ctx.drawImage(sceneImages[sceneIdx], 0, 0, seqVideo.videoWidth, seqVideo.videoHeight);
+                }
+                
+                updateUI(0, dampedP);
+                lastDampedP = dampedP;
             }
             requestAnimationFrame(loop);
         }
+        requestAnimationFrame(loop);
+    }
 
-        let boardVisibleDelayTimer = null;
+    let boardVisibleDelayTimer = null;
+    
+    function updateUI(frameIdx, dampedP) {
+        document.getElementById('scroll-progress-bar').style.transform = `scaleX(${dampedP})`;
         
-        function updateUI(frameIdx, dampedP) {
-            document.getElementById('scroll-progress-bar').style.transform = `scaleX(${dampedP})`;
-            
-            // 处理滑动引导消失逻辑
-            const hint = document.getElementById('scroll-hint');
-            if (globalTargetProgress > 0.02) {
-                hint.style.opacity = '0';
-                hint.style.transform = 'translateX(-50%) translateY(20px)';
-            } else if (globalTargetProgress < 0.01) {
-                hint.style.opacity = '1';
-                hint.style.transform = 'translateX(-50%) translateY(0)';
-            }
-
-            // 根据 dampedP 计算当前所在的绝对场景 (1-14)
-            const newSceneIndex = Math.floor(dampedP * (NUM_SCENES - 1) + 0.5) + 1;
-            
-            if(newSceneIndex !== currentSceneIndex) {
-                currentSceneIndex = newSceneIndex;
-                document.getElementById('hud-scene').innerText = currentSceneIndex.toString().padStart(2, '0');
-                document.getElementById('hud-title').innerText = SCENE_TITLES[currentSceneIndex-1];
-                
-                document.querySelectorAll('.scene-dot').forEach((dot, i) => {
-                    dot.classList.toggle('active', i === (currentSceneIndex - 1));
-                });
-                
-                // 展板交互显隐 (按钮及多位交互点)
-                clearTimeout(boardVisibleDelayTimer);
-                const btn = document.getElementById('board-btn');
-                const pContainer = document.getElementById('portal-container');
-
-                if(BOARD_MAP[currentSceneIndex]) {
-                    boardVisibleDelayTimer = setTimeout(() => {
-                        window.activeBoards = BOARD_MAP[currentSceneIndex];
-                        btn.classList.add('visible');
-                        pContainer.classList.add('visible');
-                        btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> 查看高清展板 (${window.activeBoards.length}张)`;
-                        
-                        // 动态生成蓝点/箭头点
-                        pContainer.innerHTML = '';
-                        const boards = BOARD_MAP[currentSceneIndex];
-                        window.activeBoards = boards.map(b => b.file); // 供 Lightbox 使用
-                        
-                        boards.forEach((board, idx) => {
-                            const item = document.createElement('div');
-                            item.className = 'portal-dot-item';
-                            
-                            // 定位逻辑
-                            if (board.x !== undefined && board.y !== undefined) {
-                                // 场景已录入精确坐标
-                                item.style.left = board.x + '%';
-                                item.style.top = board.y + '%';
-                            } else {
-                                // 兜底：自动水平等分排布
-                                const spacing = 10; // 间距
-                                const totalWidth = (boards.length - 1) * spacing;
-                                const startX = 50 - totalWidth / 2;
-                                item.style.left = (startX + idx * spacing) + '%';
-                                item.style.top = '72%'; 
-                            }
-
-                            item.innerHTML = `
-                                <div class="portal-arrow-core">
-                                    <div class="portal-arrow-glow"></div>
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M12 4l-8 10h5v6h6v-6h5z" fill="white" stroke="black" stroke-width="1.5" stroke-linejoin="round" />
-                                    </svg>
-                                </div>
-                            `;
-                            item.onclick = (e) => {
-                                e.stopPropagation();
-                                openLightbox(idx);
-                            };
-                            pContainer.appendChild(item);
-                        });
-                    }, 400);
-                } else {
-                    btn.classList.remove('visible');
-                    pContainer.classList.remove('visible');
-                    window.activeBoards = null;
-                }
-
-                // 预加载当前及前后场景的展板
-                preloadSceneBoards(currentSceneIndex);
-                preloadSceneBoards(currentSceneIndex + 1);
-                preloadSceneBoards(currentSceneIndex - 1);
-
-                // 留言面板触发 (Scene 14) 仅在非手机端触发
-                const isMobile = window.innerWidth <= 1024;
-                const guestbook = document.getElementById('guestbook-panel');
-                if (currentSceneIndex === 14 && !isMobile) {
-                    if (!window.guestbookManuallyClosed) {
-                        guestbook.classList.add('visible');
-                    }
-                } else {
-                    guestbook.classList.remove('visible');
-                    window.guestbookManuallyClosed = false; // 离开场景重置隐藏状态
-                }
-            }
+        const hint = document.getElementById('scroll-hint');
+        if (globalTargetProgress > 0.02) {
+            hint.style.opacity = '0';
+            hint.style.transform = 'translateX(-50%) translateY(20px)';
+        } else if (globalTargetProgress < 0.01) {
+            hint.style.opacity = '1';
+            hint.style.transform = 'translateX(-50%) translateY(0)';
         }
 
-        // 留言板手动关闭逻辑
-        let guestbookManuallyClosed = false;
-        function closeGuestbook() {
-            window.guestbookManuallyClosed = true;
-            document.getElementById('guestbook-panel').classList.remove('visible');
-        }
-
-        // 预加载逻辑
-        const loadedBoardImages = new Set();
-        function preloadSceneBoards(sceneIdx) {
-            if (sceneIdx < 1 || sceneIdx > NUM_SCENES) return;
-            const boards = BOARD_MAP[sceneIdx];
-            if (!boards) return;
+        const newSceneIndex = Math.floor(dampedP * (NUM_SCENES - 1) + 0.5) + 1;
+        
+        if(newSceneIndex !== currentSceneIndex) {
+            currentSceneIndex = newSceneIndex;
+            document.getElementById('hud-scene').innerText = currentSceneIndex.toString().padStart(2, '0');
+            document.getElementById('hud-title').innerText = SCENE_TITLES[currentSceneIndex-1];
             
-            boards.forEach(b => {
-                const url = BOARDS_B64[b.file];
-                if (url && !loadedBoardImages.has(url)) {
-                    const img = new Image();
-                    img.src = url;
-                    loadedBoardImages.add(url);
-                }
+            document.querySelectorAll('.scene-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === (currentSceneIndex - 1));
             });
-        }
-
-        window.addEventListener('resize', () => {
-             if (seqVideo.videoWidth) {
-                const dpr = window.devicePixelRatio || 1;
-                const vW = seqVideo.videoWidth;
-                const vH = seqVideo.videoHeight;
-                
-                canvas.width = vW * dpr;
-                canvas.height = vH * dpr;
-                canvasBg.width = vW * dpr;
-                canvasBg.height = vH * dpr;
-                
-                ctx.scale(dpr, dpr);
-                ctxBg.scale(dpr, dpr);
-                
-                ctx.drawImage(seqVideo, 0, 0, vW, vH);
-                ctxBg.drawImage(seqVideo, 0, 0, vW, vH);
-            }
-        });
-
-        // --- 4. Lightbox 展板查看器系统 ---
-        let currentLbIndex = 0;
-        const lbImg = document.getElementById('lightbox-img');
-        const lbImgContainer = document.getElementById('lightbox-img-container');
-        const lbLoader = document.getElementById('lb-loader');
-        
-        // 拖拽和缩放相关状态
-        let scale = 1, panX = 0, panY = 0;
-        let isDragging = false, startX, startY;
-
-        document.getElementById('board-btn').addEventListener('click', () => {
-            if(!window.activeBoards || window.activeBoards.length === 0) return;
-            openLightbox(0);
-        });
-
-        function openLightbox(startIndex = 0) {
-            currentLbIndex = startIndex;
-            document.getElementById('lightbox').classList.add('open');
-            document.getElementById('lb-total').innerText = window.activeBoards.length;
-            loadLightboxImage();
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').classList.remove('open');
-            lbImg.src = '';
-            resetZoom();
-        }
-
-        function changeLightboxImg(dir) {
-            currentLbIndex += dir;
-            if(currentLbIndex < 0) currentLbIndex = window.activeBoards.length - 1;
-            if(currentLbIndex >= window.activeBoards.length) currentLbIndex = 0;
-            loadLightboxImage();
-        }
-
-        function loadLightboxImage() {
-            resetZoom();
-            // lbImg.style.display = 'none'; // 移除此行防止黑屏
-            lbLoader.style.display = 'block';
-            document.getElementById('lb-current').innerText = currentLbIndex + 1;
             
-            const rawImg = new Image();
-            rawImg.src = BOARDS_B64[window.activeBoards[currentLbIndex]];
-            rawImg.onload = () => {
-                lbImg.src = rawImg.src;
-                lbLoader.style.display = 'none';
-                lbImg.style.display = 'block';
-            };
-        }
+            clearTimeout(boardVisibleDelayTimer);
+            const btn = document.getElementById('board-btn');
+            const pContainer = document.getElementById('portal-container');
 
-        function resetZoom() {
-            scale = 1; panX = 0; panY = 0;
-            updateTransform();
-        }
-        function updateTransform() {
-            // 关键修复：使用 Math.round 取整，防止浮点数渲染导致黑屏和模糊
-            const rx = Math.round(panX);
-            const ry = Math.round(panY);
-            lbImg.style.transform = `translate3d(${rx}px, ${ry}px, 0) scale(${scale})`;
-        }
+            if(BOARD_MAP[currentSceneIndex]) {
+                boardVisibleDelayTimer = setTimeout(() => {
+                    window.activeBoards = BOARD_MAP[currentSceneIndex];
+                    btn.classList.add('visible');
+                    pContainer.classList.add('visible');
+                    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> 查看高清展板 (${window.activeBoards.length}张)`;
+                    
+                    pContainer.innerHTML = '';
+                    const boards = BOARD_MAP[currentSceneIndex];
+                    window.activeBoards = boards.map(b => b.file);
+                    
+                    boards.forEach((board, idx) => {
+                        const item = document.createElement('div');
+                        item.className = 'portal-dot-item';
+                        
+                        if (board.x !== undefined && board.y !== undefined) {
+                            item.style.left = board.x + '%';
+                            item.style.top = board.y + '%';
+                        } else {
+                            const spacing = 10;
+                            const totalWidth = (boards.length - 1) * spacing;
+                            const startX = 50 - totalWidth / 2;
+                            item.style.left = (startX + idx * spacing) + '%';
+                            item.style.top = '72%'; 
+                        }
 
-        // 挂载交互事件到保护遮罩层
-        const lbOverlay = document.getElementById('lb-protective-overlay');
-
-        // 鼠标拖拽平移
-        lbOverlay.addEventListener('mousedown', (e) => {
-            if(scale <= 1) return;
-            isDragging = true;
-            startX = e.clientX - panX;
-            startY = e.clientY - panY;
-            e.preventDefault();
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            panX = e.clientX - startX;
-            panY = e.clientY - startY;
-            updateTransform();
-        });
-        window.addEventListener('mouseup', () => { isDragging = false; });
-
-        // --- 手机端触摸缩放与平移 ---
-        let initialDist = -1;
-        let initialScale = 1;
-
-        lbOverlay.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
-                initialDist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                initialScale = scale;
-            } else if (e.touches.length === 1) {
-                if (scale > 1) {
-                    isDragging = true;
-                    startX = e.touches[0].clientX - panX;
-                    startY = e.touches[0].clientY - panY;
-                }
-            }
-        }, { passive: false });
-
-        lbOverlay.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && initialDist > 0) {
-                e.preventDefault();
-                const dist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                const newScale = Math.min(Math.max(1, initialScale * (dist / initialDist)), 4);
-                scale = newScale;
-                if (scale === 1) { panX = 0; panY = 0; }
-                updateTransform();
-            } else if (e.touches.length === 1 && isDragging) {
-                e.preventDefault();
-                panX = e.touches[0].clientX - startX;
-                panY = e.touches[0].clientY - startY;
-                updateTransform();
-            }
-        }, { passive: false });
-
-        lbOverlay.addEventListener('touchend', (e) => {
-            if (e.touches.length < 2) initialDist = -1;
-            isDragging = false;
-        });
-        
-        // 鼠标滚轮缩放图片
-        lbOverlay.addEventListener('wheel', (e) => {
-            if(!document.getElementById('lightbox').classList.contains('open')) return;
-            e.preventDefault();
-            const delta = e.deltaY * -0.01;
-            const newScale = Math.min(Math.max(1, scale + delta), 4); // 限制 1x ~ 4x
-            
-            scale = newScale;
-            if(scale === 1) { panX = 0; panY = 0; }
-            updateTransform();
-        }, {passive: false});
-
-        // 双击放大/还原图片
-        lbOverlay.addEventListener('dblclick', (e) => {
-            if(!document.getElementById('lightbox').classList.contains('open')) return;
-            if (scale > 1) {
-                scale = 1;
-                panX = 0;
-                panY = 0;
+                        item.innerHTML = `
+                            <div class="portal-arrow-core">
+                                <div class="portal-arrow-glow"></div>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 4l-8 10h5v6h6v-6h5z" fill="white" stroke="black" stroke-width="1.5" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                        `;
+                        item.onclick = (e) => {
+                            e.stopPropagation();
+                            openLightbox(idx);
+                        };
+                        pContainer.appendChild(item);
+                    });
+                }, 400);
             } else {
-                scale = 2.5;
-                panX = 0;
-                panY = 0;
+                btn.classList.remove('visible');
+                pContainer.classList.remove('visible');
+                window.activeBoards = null;
             }
-            lbImg.style.transition = 'transform 0.3s ease';
-            updateTransform();
-            
-            setTimeout(() => {
-                lbImg.style.transition = 'transform 0.1s'; 
-            }, 300);
+
+            preloadSceneBoards(currentSceneIndex);
+            preloadSceneBoards(currentSceneIndex + 1);
+            preloadSceneBoards(currentSceneIndex - 1);
+
+            const isMobile = window.innerWidth <= 1024;
+            const guestbook = document.getElementById('guestbook-panel');
+            if (currentSceneIndex === 14 && !isMobile) {
+                if (!window.guestbookManuallyClosed) {
+                    guestbook.classList.add('visible');
+                }
+            } else {
+                guestbook.classList.remove('visible');
+                window.guestbookManuallyClosed = false;
+            }
+        }
+    }
+
+    let guestbookManuallyClosed = false;
+    function closeGuestbook() {
+        window.guestbookManuallyClosed = true;
+        document.getElementById('guestbook-panel').classList.remove('visible');
+    }
+
+    const loadedBoardImages = new Set();
+    function preloadSceneBoards(sceneIdx) {
+        if (sceneIdx < 1 || sceneIdx > NUM_SCENES) return;
+        const boards = BOARD_MAP[sceneIdx];
+        if (!boards) return;
+        
+        boards.forEach(b => {
+            const url = BOARDS_B64[b.file];
+            if (url && !loadedBoardImages.has(url)) {
+                const img = new Image();
+                img.src = url;
+                loadedBoardImages.add(url);
+            }
         });
+    }
 
 
-        // --- 5. 留言板逻辑 ---
-        const GUESTBOOK_KEY = 'plangine_guestbook';
-        function loadGuestbook() {
-            const list = document.getElementById('gb-list');
-            list.innerHTML = '';
-            const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
-            
-            // 提供内置的几条示例留言让画面不为空
-            if(data.length === 0) {
-                data.push({name: "建筑初学者", content:"非常震撼的模型展示，AI与手绘的结合让我看到了新出路。", time: "1天前"});
-                data.push({name: "数字参数师", content:"很喜欢场景10的大幅渲染！材质阻尼感交互也做得很棒。", time: "3小时前"});
+    let currentLbIndex = 0;
+    const lbImg = document.getElementById('lightbox-img');
+    const lbImgContainer = document.getElementById('lightbox-img-container');
+    const lbLoader = document.getElementById('lb-loader');
+    
+    let scale = 1, panX = 0, panY = 0;
+    let isDragging = false, startX, startY;
+
+    document.getElementById('board-btn').addEventListener('click', () => {
+        if(!window.activeBoards || window.activeBoards.length === 0) return;
+        openLightbox(0);
+    });
+
+    function openLightbox(startIndex = 0) {
+        currentLbIndex = startIndex;
+        document.getElementById('lightbox').classList.add('open');
+        document.getElementById('lb-total').innerText = window.activeBoards.length;
+        loadLightboxImage();
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        lbImg.src = '';
+        resetZoom();
+    }
+
+    function changeLightboxImg(dir) {
+        currentLbIndex += dir;
+        if(currentLbIndex < 0) currentLbIndex = window.activeBoards.length - 1;
+        if(currentLbIndex >= window.activeBoards.length) currentLbIndex = 0;
+        loadLightboxImage();
+    }
+
+    function loadLightboxImage() {
+        resetZoom();
+        lbLoader.style.display = 'block';
+        document.getElementById('lb-current').innerText = currentLbIndex + 1;
+        
+        const rawImg = new Image();
+        rawImg.src = BOARDS_B64[window.activeBoards[currentLbIndex]];
+        rawImg.onload = () => {
+            lbImg.src = rawImg.src;
+            lbLoader.style.display = 'none';
+            lbImg.style.display = 'block';
+        };
+    }
+
+    function resetZoom() {
+        scale = 1; panX = 0; panY = 0;
+        updateTransform();
+    }
+    
+    // 【核心修复3】：将 translate3d 降级为 translate，破除 iOS 强制的低分层级
+    function updateTransform() {
+        const rx = Math.round(panX);
+        const ry = Math.round(panY);
+        lbImg.style.transform = `translate(${rx}px, ${ry}px) scale(${scale})`;
+    }
+
+    const lbOverlay = document.getElementById('lb-protective-overlay');
+
+    lbOverlay.addEventListener('mousedown', (e) => {
+        if(scale <= 1) return;
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        updateTransform();
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    let initialDist = -1;
+    let initialScale = 1;
+
+    lbOverlay.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            initialDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            initialScale = scale;
+        } else if (e.touches.length === 1) {
+            if (scale > 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - panX;
+                startY = e.touches[0].clientY - panY;
             }
+        }
+    }, { passive: false });
 
-            data.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'gb-item';
-                el.innerHTML = `<span>${item.time}</span><strong>${item.name}</strong><p>${item.content}</p>`;
-                list.appendChild(el);
-            });
-            // 自动滚到底部
-            list.scrollTop = list.scrollHeight;
+    lbOverlay.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && initialDist > 0) {
+            e.preventDefault();
+            const dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const newScale = Math.min(Math.max(1, initialScale * (dist / initialDist)), 4);
+            scale = newScale;
+            if (scale === 1) { panX = 0; panY = 0; }
+            updateTransform();
+        } else if (e.touches.length === 1 && isDragging) {
+            e.preventDefault();
+            panX = e.touches[0].clientX - startX;
+            panY = e.touches[0].clientY - startY;
+            updateTransform();
+        }
+    }, { passive: false });
+
+    lbOverlay.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) initialDist = -1;
+        isDragging = false;
+    });
+    
+    lbOverlay.addEventListener('wheel', (e) => {
+        if(!document.getElementById('lightbox').classList.contains('open')) return;
+        e.preventDefault();
+        const delta = e.deltaY * -0.01;
+        const newScale = Math.min(Math.max(1, scale + delta), 4);
+        
+        scale = newScale;
+        if(scale === 1) { panX = 0; panY = 0; }
+        updateTransform();
+    }, {passive: false});
+
+    lbOverlay.addEventListener('dblclick', (e) => {
+        if(!document.getElementById('lightbox').classList.contains('open')) return;
+        if (scale > 1) {
+            scale = 1;
+            panX = 0;
+            panY = 0;
+        } else {
+            scale = 2.5;
+            panX = 0;
+            panY = 0;
+        }
+        lbImg.style.transition = 'transform 0.3s ease';
+        updateTransform();
+        
+        setTimeout(() => {
+            lbImg.style.transition = 'transform 0.1s'; 
+        }, 300);
+    });
+
+    const GUESTBOOK_KEY = 'plangine_guestbook';
+    function loadGuestbook() {
+        const list = document.getElementById('gb-list');
+        list.innerHTML = '';
+        const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
+        
+        if(data.length === 0) {
+            data.push({name: "建筑初学者", content:"非常震撼的模型展示，AI与手绘的结合让我看到了新出路。", time: "1天前"});
+            data.push({name: "数字参数师", content:"很喜欢场景10的大幅渲染！材质阻尼感交互也做得很棒。", time: "3小时前"});
         }
 
-        function submitGuestbook(e) {
-            e.preventDefault();
-            const name = document.getElementById('gb-name').value.trim();
-            const content = document.getElementById('gb-content').value.trim();
-            if(!name || !content) return;
-
-            const now = new Date();
-            const timeStr = `${now.getMonth()+1}-${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-            
-            const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
-            // 处理默认数据
-            if(data.length > 0 && !data[0].time.includes('-')) {
-                // 如果是那两条假的假的时间戳，说明是默认的，保留即可
-            }
-            
-            data.push({ name, content, time: timeStr });
-            localStorage.setItem(GUESTBOOK_KEY, JSON.stringify(data));
-            
-            document.getElementById('gb-content').value = '';
-            
-            // 重新渲染留言板
+        data.forEach(item => {
             const el = document.createElement('div');
             el.className = 'gb-item';
-            el.innerHTML = `<span>${timeStr}</span><strong>${name}</strong><p>${content}</p>`;
-            
-            const list = document.getElementById('gb-list');
+            el.innerHTML = `<span>${item.time}</span><strong>${item.name}</strong><p>${item.content}</p>`;
             list.appendChild(el);
-            
-            // 平滑滚动到底部
-            setTimeout(() => {
-                list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
-            }, 100);
-            
-            // 反馈
-            const btn = document.querySelector('.gb-btn');
-            const oldText = btn.innerText;
-            btn.innerText = "感谢留言!";
-            btn.style.background = "#28a745";
-            setTimeout(() => {
-                btn.innerText = "留 言";
-                btn.style.background = "var(--accent-color)";
-            }, 2000);
-        }
-        // --- 6. 基础安全防护 ---
-        (function() {
-            // 禁用右键
-            document.addEventListener('contextmenu', e => e.preventDefault());
+        });
+        list.scrollTop = list.scrollHeight;
+    }
 
-            // 禁用 F12, Ctrl+Shift+I/C/J, Ctrl+U
-            window.addEventListener('keydown', e => {
-                if (
-                    e.keyCode === 123 || // F12
-                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
-                    (e.ctrlKey && e.keyCode === 85) // Ctrl+U
-                ) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
+    function submitGuestbook(e) {
+        e.preventDefault();
+        const name = document.getElementById('gb-name').value.trim();
+        const content = document.getElementById('gb-content').value.trim();
+        if(!name || !content) return;
 
-            // 禁止打开新窗口
-            window.open = function() { console.log('Window open blocked'); return null; };
-        })();
-    </script>
+        const now = new Date();
+        const timeStr = `${now.getMonth()+1}-${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        
+        const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
+        
+        data.push({ name, content, time: timeStr });
+        localStorage.setItem(GUESTBOOK_KEY, JSON.stringify(data));
+        
+        document.getElementById('gb-content').value = '';
+        
+        const el = document.createElement('div');
+        el.className = 'gb-item';
+        el.innerHTML = `<span>${timeStr}</span><strong>${name}</strong><p>${content}</p>`;
+        
+        const list = document.getElementById('gb-list');
+        list.appendChild(el);
+        
+        setTimeout(() => {
+            list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+        }, 100);
+        
+        const btn = document.querySelector('.gb-btn');
+        btn.innerText = "感谢留言!";
+        btn.style.background = "#28a745";
+        setTimeout(() => {
+            btn.innerText = "留 言";
+            btn.style.background = "var(--accent-color)";
+        }, 2000);
+    }
+
+    (function() {
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        window.addEventListener('keydown', e => {
+            if (
+                e.keyCode === 123 || 
+                (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+                (e.ctrlKey && e.keyCode === 85) 
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        window.open = function() { console.log('Window open blocked'); return null; };
+    })();
+</script>
 </body>
 </html>

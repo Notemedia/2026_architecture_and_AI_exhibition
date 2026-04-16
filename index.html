@@ -414,6 +414,8 @@
             
             /* 【核心修复1】：移除强制的 3D 加速和特殊的对比度优化，防止 iOS 将其变成低分辨率位图拉伸 */
             will-change: transform; 
+            /* 【终极清晰度】：向浏览器请求最高质量的图片缩放渲染算法 */
+            image-rendering: high-quality;
         }
         #lightbox-img:active { cursor: grabbing; }
 

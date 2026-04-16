@@ -976,7 +976,7 @@
             isSnapping = true;
             const nearest = Math.round(globalTargetProgress);
             gsap.to(window, {
-                duration: 0.8,
+                duration: 1.5, // 增加动画时长，让吸附过程更平稳厚重
                 globalTargetProgress: nearest,
                 ease: "power2.out"
             });
@@ -1016,22 +1016,22 @@
         function startRenderLoop() {
             let lastDampedP = -1;
             function loop() {
-                // 增加阻尼感，系数从 0.12 下调至 0.08 以获得更“丝滑”的视觉连贯感
-                globalCurrentProgress += (globalTargetProgress - globalCurrentProgress) * 0.08;
+                // 增加阻尼感，下调至 0.04 以获得更“厚重”且平缓的视觉连贯感，减少跳转感
+                globalCurrentProgress += (globalTargetProgress - globalCurrentProgress) * 0.04;
 
                 const progressNorm = globalCurrentProgress / (NUM_SCENES - 1); // 0 to 1
                 const dampedP = getDampedProgress(progressNorm);
                 
                 // 只有当进度发生微小偏移时才重绘，节省性能
                 if (Math.abs(dampedP - lastDampedP) > 0.00001) {
-                    // --- 核心混合渲染逻辑 (Cross-fade) ---
+                    // --- 渲染逻辑 (移除重影/混合) ---
                     const sceneIdxFloat = dampedP * (NUM_SCENES - 1);
                     const sceneIdx = Math.round(sceneIdxFloat);
                     const distToScene = Math.abs(sceneIdxFloat - sceneIdx);
                     
-                    const blendWindow = 0.15; // 混合窗口大小
+                    const switchThreshold = 0.05; // 只有非常接近时才切换到静态图
 
-                    // 1. 先绘制底层动力视频
+                    // 1. 绘制底层动力视频
                     if (seqVideo.duration) {
                         let t = dampedP * seqVideo.duration;
                         t = Math.max(0, Math.min(seqVideo.duration - 0.05, t));
@@ -1041,13 +1041,9 @@
                     }
                     ctx.drawImage(seqVideo, 0, 0, canvas.width, canvas.height);
 
-                    // 2. 如果接近场景吸附点，则叠映高清图
-                    if (distToScene < blendWindow && sceneImages[sceneIdx] && sceneImages[sceneIdx].complete) {
-                        // 使用平方衰减让中心吸附更稳定
-                        const opacity = Math.pow(1 - (distToScene / blendWindow), 2);
-                        ctx.globalAlpha = opacity;
+                    // 2. 只有在静止或极其接近场景点时才覆盖高清图，不再使用透明度混合防止重影
+                    if (distToScene < switchThreshold && sceneImages[sceneIdx] && sceneImages[sceneIdx].complete) {
                         ctx.drawImage(sceneImages[sceneIdx], 0, 0, canvas.width, canvas.height);
-                        ctx.globalAlpha = 1.0;
                     }
                     
                     updateUI(0, dampedP);

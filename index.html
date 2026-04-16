@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Plangine Tech - 14 Scenes Exhibition</title>
     <!-- 核心库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -420,6 +423,9 @@
             user-select: none;
             -webkit-user-drag: none;
             pointer-events: none; /* 让鼠标事件穿透到上层遮罩 */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         #lightbox-img:active { cursor: grabbing; }
 
@@ -622,8 +628,7 @@
             .hud { bottom: 20px; padding: 8px 20px; font-size: 12px; }
             .hud-title { font-size: 13px; }
             #board-btn { bottom: 20px; right: 20px; padding: 10px 18px; font-size: 13px; }
-            .scene-nav { right: 20px; gap: 12px; }
-            .scene-dot { width: 5px; height: 5px; }
+            .scene-nav { display: none; }
             #scroll-hint { bottom: 80px; font-size: 13px; }
             #guestbook-panel { top: 20px; height: 85vh; padding: 15px; }
             .gb-header { font-size: 20px; margin-bottom: 10px; }
@@ -1141,6 +1146,11 @@
                     window.activeBoards = null;
                 }
 
+                // 预加载当前及前后场景的展板
+                preloadSceneBoards(currentSceneIndex);
+                preloadSceneBoards(currentSceneIndex + 1);
+                preloadSceneBoards(currentSceneIndex - 1);
+
                 // 留言面板触发 (Scene 14)
                 const guestbook = document.getElementById('guestbook-panel');
                 if (currentSceneIndex === 14) {
@@ -1159,6 +1169,23 @@
         function closeGuestbook() {
             window.guestbookManuallyClosed = true;
             document.getElementById('guestbook-panel').classList.remove('visible');
+        }
+
+        // 预加载逻辑
+        const loadedBoardImages = new Set();
+        function preloadSceneBoards(sceneIdx) {
+            if (sceneIdx < 1 || sceneIdx > NUM_SCENES) return;
+            const boards = BOARD_MAP[sceneIdx];
+            if (!boards) return;
+            
+            boards.forEach(b => {
+                const url = BOARDS_B64[b.file];
+                if (url && !loadedBoardImages.has(url)) {
+                    const img = new Image();
+                    img.src = url;
+                    loadedBoardImages.add(url);
+                }
+            });
         }
 
         window.addEventListener('resize', () => {
@@ -1209,7 +1236,7 @@
 
         function loadLightboxImage() {
             resetZoom();
-            lbImg.style.display = 'none';
+            // lbImg.style.display = 'none'; // 移除此行防止黑屏
             lbLoader.style.display = 'block';
             document.getElementById('lb-current').innerText = currentLbIndex + 1;
             
@@ -1227,7 +1254,7 @@
             updateTransform();
         }
         function updateTransform() {
-            lbImg.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+            lbImg.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${scale})`;
         }
 
         // 挂载交互事件到保护遮罩层

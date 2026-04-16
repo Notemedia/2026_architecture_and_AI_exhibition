@@ -43,7 +43,14 @@
             align-items: center;
             z-index: 1000;
             background: #000;
-            transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.8s;
+            transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.8s, visibility 0.8s;
+        }
+
+        #upload-container.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
         }
 
         .upload-card {
@@ -615,17 +622,21 @@
             .upload-card { padding: 30px; border-radius: 20px; }
             .upload-card h1 { font-size: 32px; }
             
-            /* 针对手机横屏的极致压缩留言板 */
+            /* 针对手机横屏的极致压缩留言板 - 避免遮挡顶部 */
             #guestbook-panel {
-                top: 10px;
-                height: 80vh;
-                width: 450px;
-                padding: 12px;
+                top: env(safe-area-inset-top, 10px);
+                height: 70vh;
+                width: 90%;
+                max-width: 450px;
+                padding: 10px;
             }
-            .gb-header { font-size: 16px; margin-bottom: 8px; }
-            .gb-item { padding: 8px 12px; }
-            .gb-item p { font-size: 13px; }
-            .gb-form { padding: 6px; }
+            .gb-header { font-size: 15px; margin-bottom: 6px; }
+            .gb-item { padding: 6px 10px; }
+            .gb-item p { font-size: 12px; }
+            .gb-form { padding: 4px; gap: 5px; }
+            .gb-form input { padding: 6px 10px; font-size: 12px; }
+            .gb-form input.name-input { width: 60px; }
+            .gb-btn { padding: 0 10px; font-size: 12px; }
         }
 
         @media screen and (max-width: 950px), screen and (max-height: 500px) {
@@ -946,7 +957,9 @@
             nav.appendChild(dot);
         }
 
-        document.getElementById('upload-container').style.transform = "translateY(-100%)";
+        const uploadContainer = document.getElementById('upload-container');
+        uploadContainer.classList.add('hidden');
+        
         const wrapper = document.getElementById('scroll-wrapper');
         wrapper.style.display = "block";
         

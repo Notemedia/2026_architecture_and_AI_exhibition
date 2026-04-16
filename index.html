@@ -423,11 +423,12 @@
             user-select: none;
             -webkit-user-drag: none;
             pointer-events: none; /* 让鼠标事件穿透到上层遮罩 */
-            /* 优化：不再使用 will-change 以防显存溢出，且增强对比度防模糊 */
+            /* 优化：提升清晰度，防止移动端模糊 */
+            image-rendering: auto;
             image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            transform-style: preserve-3d;
         }
         #lightbox-img:active { cursor: grabbing; }
 
@@ -873,12 +874,26 @@
         function initUI() {
             // 设置画布比例为视频比例，并绘制首帧
             if(seqVideo.videoWidth) {
-                canvas.width = seqVideo.videoWidth;
-                canvas.height = seqVideo.videoHeight;
-                canvasBg.width = seqVideo.videoWidth;
-                canvasBg.height = seqVideo.videoHeight;
-                ctx.drawImage(seqVideo, 0, 0);
-                ctxBg.drawImage(seqVideo, 0, 0);
+                const dpr = window.devicePixelRatio || 1;
+                const vW = seqVideo.videoWidth;
+                const vH = seqVideo.videoHeight;
+                
+                canvas.width = vW * dpr;
+                canvas.height = vH * dpr;
+                canvasBg.width = vW * dpr;
+                canvasBg.height = vH * dpr;
+                
+                // 确保样式大小正确
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvasBg.style.width = '100%';
+                canvasBg.style.height = '100%';
+
+                ctx.scale(dpr, dpr);
+                ctxBg.scale(dpr, dpr);
+                
+                ctx.drawImage(seqVideo, 0, 0, vW, vH);
+                ctxBg.drawImage(seqVideo, 0, 0, vW, vH);
             }
             
             const nav = document.getElementById('scene-nav');
@@ -1039,11 +1054,12 @@
                             seqVideo.currentTime = t;
                         }
                     }
-                    ctx.drawImage(seqVideo, 0, 0, canvas.width, canvas.height);
+                    // 指定绘制尺寸以匹配 ctx.scale
+                    ctx.drawImage(seqVideo, 0, 0, seqVideo.videoWidth, seqVideo.videoHeight);
 
-                    // 2. 只有在静止或极其接近场景点时才覆盖高清图，不再使用透明度混合防止重影
+                    // 2. 只有在静止或极其接近场景点时才覆盖高清图
                     if (distToScene < switchThreshold && sceneImages[sceneIdx] && sceneImages[sceneIdx].complete) {
-                        ctx.drawImage(sceneImages[sceneIdx], 0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(sceneImages[sceneIdx], 0, 0, seqVideo.videoWidth, seqVideo.videoHeight);
                     }
                     
                     updateUI(0, dampedP);
@@ -1183,12 +1199,20 @@
 
         window.addEventListener('resize', () => {
              if (seqVideo.videoWidth) {
-                canvas.width = seqVideo.videoWidth;
-                canvas.height = seqVideo.videoHeight;
-                canvasBg.width = seqVideo.videoWidth;
-                canvasBg.height = seqVideo.videoHeight;
-                ctx.drawImage(seqVideo, 0, 0, canvas.width, canvas.height);
-                ctxBg.drawImage(seqVideo, 0, 0, canvasBg.width, canvasBg.height);
+                const dpr = window.devicePixelRatio || 1;
+                const vW = seqVideo.videoWidth;
+                const vH = seqVideo.videoHeight;
+                
+                canvas.width = vW * dpr;
+                canvas.height = vH * dpr;
+                canvasBg.width = vW * dpr;
+                canvasBg.height = vH * dpr;
+                
+                ctx.scale(dpr, dpr);
+                ctxBg.scale(dpr, dpr);
+                
+                ctx.drawImage(seqVideo, 0, 0, vW, vH);
+                ctxBg.drawImage(seqVideo, 0, 0, vW, vH);
             }
         });
 

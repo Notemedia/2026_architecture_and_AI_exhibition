@@ -299,7 +299,7 @@
             z-index: 95;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .portal-container.visible {
@@ -583,6 +583,55 @@
         }
         .gb-close:hover { color: white; transform: scale(1.1); }
 
+        /* ====== 手机端适配 ====== */
+        #landscape-lock-hint {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (orientation: portrait) and (max-width: 1024px) {
+            #landscape-lock-hint { display: flex; }
+        }
+
+        .phone-rotate-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 30px;
+            animation: phoneRotate 2s ease-in-out infinite;
+        }
+        @keyframes phoneRotate {
+            0% { transform: rotate(0deg); }
+            30% { transform: rotate(-90deg); }
+            70% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .lock-hint-content h2 { font-weight: 500; letter-spacing: 2px; margin-bottom: 10px; }
+        .lock-hint-content p { color: #888; font-size: 14px; }
+
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            .hud { bottom: 20px; padding: 8px 20px; font-size: 12px; }
+            .hud-title { font-size: 13px; }
+            #board-btn { bottom: 20px; right: 20px; padding: 10px 18px; font-size: 13px; }
+            .scene-nav { right: 20px; gap: 12px; }
+            .scene-dot { width: 5px; height: 5px; }
+            #scroll-hint { bottom: 80px; font-size: 13px; }
+            #guestbook-panel { top: 20px; height: 85vh; padding: 15px; }
+            .gb-header { font-size: 20px; margin-bottom: 10px; }
+            .gb-form { padding: 8px; }
+            .upload-card { padding: 30px; border-radius: 20px; }
+            .upload-card h1 { font-size: 32px; }
+        }
+
     </style>
 </head>
 <body>
@@ -646,6 +695,22 @@
             <input type="text" id="gb-content" placeholder="写下您对本次展览的感想..." required>
             <button type="submit" class="gb-btn">留 言</button>
         </form>
+    </div>
+
+    <!-- 锁定横屏提示层 -->
+    <div id="landscape-lock-hint">
+        <div class="lock-hint-content">
+            <div class="phone-rotate-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M1 12.5C1 12.5 1 5.5 8 5.5H16C23 5.5 23 12.5 23 12.5V13.5C23 13.5 23 20.5 16 20.5H8C1 20.5 1 13.5 1 13.5V12.5Z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2V4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 20V22" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="11" y="8" width="2" height="8" rx="1" fill="currentColor" opacity="0.3"/>
+                </svg>
+            </div>
+            <h2>请横屏开启沉浸之旅</h2>
+            <p>为了获得最佳观展效果，建议锁定手机横屏方向</p>
+        </div>
     </div>
 
     <!-- Lightbox -->
@@ -779,6 +844,17 @@
             loadBtn.innerText = '加载完成';
             document.getElementById('loading-overlay').style.opacity = '0';
             
+            // 请求全屏 (增强沉浸感)
+            try {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } catch (e) {
+                console.log("Fullscreen request failed");
+            }
+
             setTimeout(() => {
                 initUI();
                 startRenderLoop();
@@ -831,7 +907,8 @@
             let localP = (p - i * segment) / segment;
             
             localP = Math.max(0, Math.min(1, localP));
-            const easedLocalP = gsap.parseEase("power3.inOut")(localP);
+            // 使用 Sine Easing 替代 Power3，获得更丝滑的进出动态
+            const easedLocalP = gsap.parseEase("sine.inOut")(localP);
             return (i + easedLocalP) * segment;
         }
 
@@ -856,6 +933,53 @@
             }, 250);
 
         }, {passive: false});
+
+        // --- 3.5 触摸滑动支持 (手机端) ---
+        let touchStartX = 0;
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+            if(document.getElementById('lightbox').classList.contains('open')) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, {passive: true});
+
+        window.addEventListener('touchend', (e) => {
+            if(document.getElementById('lightbox').classList.contains('open')) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            
+            const threshold = 50; // 触发阈值
+            const isLandscape = window.innerWidth > window.innerHeight;
+            
+            let moved = false;
+            let nearest = Math.round(globalTargetProgress);
+            
+            if (isLandscape) {
+                // 横屏：左右滑动
+                if (Math.abs(dx) > threshold && Math.abs(dx) > Math.abs(dy)) {
+                    globalTargetProgress = Math.max(0, Math.min(NUM_SCENES - 1, nearest + (dx > 0 ? -1 : 1)));
+                    moved = true;
+                }
+            } else {
+                // 竖屏：上下滑动
+                if (Math.abs(dy) > threshold && Math.abs(dy) > Math.abs(dx)) {
+                    globalTargetProgress = Math.max(0, Math.min(NUM_SCENES - 1, nearest + (dy > 0 ? -1 : 1)));
+                    moved = true;
+                }
+            }
+
+            if (moved) {
+                isSnapping = true;
+                gsap.to(window, {
+                    duration: 0.8,
+                    globalTargetProgress: globalTargetProgress,
+                    ease: "power2.out"
+                });
+            }
+        }, {passive: true});
 
         window.addEventListener('keydown', (e) => {
             if(document.getElementById('lightbox').classList.contains('open')) {
@@ -889,34 +1013,45 @@
 
         // 渲染循环
         function startRenderLoop() {
+            let lastDampedP = -1;
             function loop() {
-                globalCurrentProgress += (globalTargetProgress - globalCurrentProgress) * 0.12;
+                // 增加阻尼感，系数从 0.12 下调至 0.08 以获得更“丝滑”的视觉连贯感
+                globalCurrentProgress += (globalTargetProgress - globalCurrentProgress) * 0.08;
 
                 const progressNorm = globalCurrentProgress / (NUM_SCENES - 1); // 0 to 1
                 const dampedP = getDampedProgress(progressNorm);
                 
-                // --- 混合渲染逻辑 ---
-                const sceneIdxFloat = dampedP * (NUM_SCENES - 1);
-                const sceneIdx = Math.round(sceneIdxFloat);
-                const distToScene = Math.abs(sceneIdxFloat - sceneIdx);
+                // 只有当进度发生微小偏移时才重绘，节省性能
+                if (Math.abs(dampedP - lastDampedP) > 0.00001) {
+                    // --- 核心混合渲染逻辑 (Cross-fade) ---
+                    const sceneIdxFloat = dampedP * (NUM_SCENES - 1);
+                    const sceneIdx = Math.round(sceneIdxFloat);
+                    const distToScene = Math.abs(sceneIdxFloat - sceneIdx);
+                    
+                    const blendWindow = 0.15; // 混合窗口大小
 
-                // 如果极度接近场景吸附点 (阈值 0.001) 且高清图已准备好
-                if (distToScene < 0.001 && sceneImages[sceneIdx] && sceneImages[sceneIdx].complete) {
-                    ctx.drawImage(sceneImages[sceneIdx], 0, 0, canvas.width, canvas.height);
-                } else {
-                    // 否则渲染动态视频帧
+                    // 1. 先绘制底层动力视频
                     if (seqVideo.duration) {
                         let t = dampedP * seqVideo.duration;
                         t = Math.max(0, Math.min(seqVideo.duration - 0.05, t));
-                        // 只有在时间差较大时才 seek，减少性能抖动
-                        if (Math.abs(seqVideo.currentTime - t) > 0.01) {
+                        if (Math.abs(seqVideo.currentTime - t) > 0.005) {
                             seqVideo.currentTime = t;
                         }
                     }
                     ctx.drawImage(seqVideo, 0, 0, canvas.width, canvas.height);
+
+                    // 2. 如果接近场景吸附点，则叠映高清图
+                    if (distToScene < blendWindow && sceneImages[sceneIdx] && sceneImages[sceneIdx].complete) {
+                        // 使用平方衰减让中心吸附更稳定
+                        const opacity = Math.pow(1 - (distToScene / blendWindow), 2);
+                        ctx.globalAlpha = opacity;
+                        ctx.drawImage(sceneImages[sceneIdx], 0, 0, canvas.width, canvas.height);
+                        ctx.globalAlpha = 1.0;
+                    }
+                    
+                    updateUI(0, dampedP);
+                    lastDampedP = dampedP;
                 }
-                
-                updateUI(0, dampedP);
 
                 requestAnimationFrame(loop);
             }
@@ -1113,6 +1248,50 @@
             updateTransform();
         });
         window.addEventListener('mouseup', () => { isDragging = false; });
+
+        // --- 手机端触摸缩放与平移 ---
+        let initialDist = -1;
+        let initialScale = 1;
+
+        lbOverlay.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                initialDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                initialScale = scale;
+            } else if (e.touches.length === 1) {
+                if (scale > 1) {
+                    isDragging = true;
+                    startX = e.touches[0].clientX - panX;
+                    startY = e.touches[0].clientY - panY;
+                }
+            }
+        }, { passive: false });
+
+        lbOverlay.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialDist > 0) {
+                e.preventDefault();
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const newScale = Math.min(Math.max(1, initialScale * (dist / initialDist)), 4);
+                scale = newScale;
+                if (scale === 1) { panX = 0; panY = 0; }
+                updateTransform();
+            } else if (e.touches.length === 1 && isDragging) {
+                e.preventDefault();
+                panX = e.touches[0].clientX - startX;
+                panY = e.touches[0].clientY - startY;
+                updateTransform();
+            }
+        }, { passive: false });
+
+        lbOverlay.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) initialDist = -1;
+            isDragging = false;
+        });
         
         // 鼠标滚轮缩放图片
         lbOverlay.addEventListener('wheel', (e) => {

@@ -412,8 +412,6 @@
             -webkit-user-drag: none;
             pointer-events: none;
             
-            /* 【终极清晰度突破】：绝对不能写 will-change: transform; 
-               否则 iOS 强制在放大前将图片缓存为 1x 倍率的低清静态贴图！删掉它才能激活实时高清重绘 */
             image-rendering: -webkit-optimize-contrast;
             image-rendering: high-quality;
         }
@@ -563,6 +561,7 @@
             transition: 0.3s;
         }
         .gb-btn:hover { background: #0088ff; }
+        .gb-btn:disabled { opacity: 0.7; cursor: not-allowed; }
         
         .gb-close {
             position: absolute;
@@ -609,7 +608,6 @@
             .upload-card h1 { font-size: 32px; }
         }
 
-        /* 手机端彻底隐藏侧边栏场景导航 (宽度<=950px 或 高度<=500px) */
         @media screen and (max-width: 950px), screen and (max-height: 500px) {
             .scene-nav { 
                 display: none !important; 
@@ -699,6 +697,101 @@
         <div class="lb-nav lb-next" onclick="changeLightboxImg(1)">›</div>
         <div class="lb-indicator"><span id="lb-current">1</span> / <span id="lb-total">3</span></div>
     </div>
+
+<!-- ================= Firebase 云端数据库模块 ================= -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    let db, auth, appId, guestbookCollectionRef;
+
+    async function initFirebase() {
+        try {
+            // 在您实际的 Github Pages 中，请将下面的 '{}' 替换为您自己在 Firebase 控制台获取的 Config 对象
+            // 这里我们使用系统预设变量，保证在目前的协作环境中可以直接运行
+            const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+            const firebaseConfig = JSON.parse(configStr);
+            
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.warn("尚未配置 Firebase Config，已自动降级为本地留言板模式。");
+                return;
+            }
+
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+            // 首先进行静默的身份认证 (给每个浏览器的观众分发一个临时 ID)
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            };
+            await initAuth();
+
+            // 认证通过后，挂载对“云端留言黑板”的实时监听
+            onAuthStateChanged(auth, (user) => {
+                if (user) setupGuestbookListener();
+            });
+        } catch (e) {
+            console.error("云端连线初始化异常，降级为本地模式:", e);
+        }
+    }
+
+    function setupGuestbookListener() {
+        if (!auth.currentUser) return; // 安全检查：只有领到“访客牌”的人才能读写
+        
+        guestbookCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'guestbook');
+        
+        // 实时监听器 (对讲机模式)：云端一有新留言，立刻推送到此
+        onSnapshot(guestbookCollectionRef, (snapshot) => {
+            const messages = [];
+            snapshot.forEach((doc) => {
+                messages.push({ id: doc.id, ...doc.data() });
+            });
+            
+            // 内存实时排序（新推文置于最下）
+            messages.sort((a, b) => {
+                const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.localTimestamp || 0);
+                const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.localTimestamp || 0);
+                return timeA - timeB; 
+            });
+            
+            // 把云端数据交给界面的渲染器
+            if (window.renderCloudGuestbook) {
+                window.renderCloudGuestbook(messages);
+            }
+        }, (error) => {
+            console.error("云端监听断开:", error);
+        });
+    }
+
+    // 暴露提交接口给普通的 Script
+    window.submitCloudGuestbook = async (name, content, timeStr) => {
+        if (!auth || !auth.currentUser || !guestbookCollectionRef) return false; 
+        
+        try {
+            // 向云端的 "guestbook" 集合投递一条新留言
+            await addDoc(guestbookCollectionRef, {
+                name: name,
+                content: content,
+                timeStr: timeStr,  // 界面显示的时间格式
+                createdAt: serverTimestamp(), // 服务器标准时间戳
+                localTimestamp: Date.now() // 应对弱网时的本地排序备用参数
+            });
+            return true;
+        } catch (e) {
+            console.error("投递留言到云端失败: ", e);
+            return false;
+        }
+    };
+
+    initFirebase();
+</script>
 
 <script>
     const VIDEO_B64 = "./assets/video_1.mp4";
@@ -1104,7 +1197,6 @@
         });
     }
 
-
     let currentLbIndex = 0;
     const lbImg = document.getElementById('lightbox-img');
     const lbImgContainer = document.getElementById('lightbox-img-container');
@@ -1254,55 +1346,78 @@
     });
 
     const GUESTBOOK_KEY = 'wisdom_arch_guestbook';
-    function loadGuestbook() {
+
+    // 抽离出来的渲染器（无论来自本地还是云端，都交由它统一渲染 HTML）
+    window.renderCloudGuestbook = function(data) {
         const list = document.getElementById('gb-list');
-        list.innerHTML = '';
-        const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
+        // 检查渲染前是否位于底部，以便更新后自动跟随滚动
+        const isScrolledToBottom = list.scrollHeight - list.clientHeight <= list.scrollTop + 50; 
         
-        if(data.length === 0) {
-            data.push({name: "建筑初学者", content:"非常震撼的模型展示，AI与手绘的结合让我看到了新出路。", time: "1天前"});
-            data.push({name: "数字参数师", content:"很喜欢场景10的大幅渲染！材质阻尼感交互也做得很棒。", time: "3小时前"});
+        list.innerHTML = '';
+        
+        let displayData = [...data];
+        if(displayData.length === 0) {
+            displayData.push({name: "建筑初学者", content:"非常震撼的模型展示，AI与手绘的结合让我看到了新出路。", timeStr: "1天前"});
+            displayData.push({name: "数字参数师", content:"很喜欢场景10的大幅渲染！材质阻尼感交互也做得很棒。", timeStr: "3小时前"});
         }
 
-        data.forEach(item => {
+        displayData.forEach(item => {
             const el = document.createElement('div');
             el.className = 'gb-item';
-            el.innerHTML = `<span>${item.time}</span><strong>${item.name}</strong><p>${item.content}</p>`;
+            // 兼容新老时间字段
+            const displayTime = item.timeStr || item.time || '';
+            el.innerHTML = `<span>${displayTime}</span><strong>${item.name}</strong><p>${item.content}</p>`;
             list.appendChild(el);
         });
-        list.scrollTop = list.scrollHeight;
+
+        if (isScrolledToBottom || data.length === 0) {
+            list.scrollTop = list.scrollHeight;
+        }
+    };
+
+    function loadGuestbook() {
+        // 作为初始回退方案，先加载本地数据，云端连上后会自动覆盖
+        const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
+        window.renderCloudGuestbook(data);
     }
 
-    function submitGuestbook(e) {
+    async function submitGuestbook(e) {
         e.preventDefault();
         const name = document.getElementById('gb-name').value.trim();
         const content = document.getElementById('gb-content').value.trim();
         if(!name || !content) return;
 
+        const btn = document.querySelector('.gb-btn');
+        btn.innerText = "发送中...";
+        btn.disabled = true;
+
         const now = new Date();
         const timeStr = `${now.getMonth()+1}-${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         
-        const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
+        let success = false;
+        // 优先尝试云端提交
+        if (typeof window.submitCloudGuestbook === 'function') {
+            success = await window.submitCloudGuestbook(name, content, timeStr);
+        }
         
-        data.push({ name, content, time: timeStr });
-        localStorage.setItem(GUESTBOOK_KEY, JSON.stringify(data));
+        // 如果云端提交失败 (未配置/断网)，回落到 localStorage 模式
+        if (!success) {
+            const data = JSON.parse(localStorage.getItem(GUESTBOOK_KEY) || '[]');
+            data.push({ name, content, timeStr: timeStr });
+            localStorage.setItem(GUESTBOOK_KEY, JSON.stringify(data));
+            window.renderCloudGuestbook(data);
+        }
         
         document.getElementById('gb-content').value = '';
         
-        const el = document.createElement('div');
-        el.className = 'gb-item';
-        el.innerHTML = `<span>${timeStr}</span><strong>${name}</strong><p>${content}</p>`;
-        
         const list = document.getElementById('gb-list');
-        list.appendChild(el);
-        
         setTimeout(() => {
             list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
         }, 100);
         
-        const btn = document.querySelector('.gb-btn');
         btn.innerText = "感谢留言!";
         btn.style.background = "#28a745";
+        btn.disabled = false;
         setTimeout(() => {
             btn.innerText = "留 言";
             btn.style.background = "var(--accent-color)";

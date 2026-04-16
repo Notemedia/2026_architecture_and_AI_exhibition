@@ -611,18 +611,55 @@
         .lock-hint-content h2 { font-weight: 500; letter-spacing: 2px; margin-bottom: 10px; }
         .lock-hint-content p { color: #888; font-size: 14px; }
 
+        /* ====== 手机与平板端 UI 极简缩小优化 ====== */
+        @media screen and (max-width: 1024px), screen and (max-height: 500px) {
+            /* 1. 上传与加载卡片 */
+            .upload-card { padding: 30px 40px; border-radius: 20px; }
+            .upload-card h1 { font-size: 26px !important; margin-bottom: 8px; }
+            .upload-card p { font-size: 12px !important; margin-bottom: 25px !important; }
+            .btn-apple { padding: 12px 24px; font-size: 13px; }
+
+            /* 2. 底部 HUD 信息栏 */
+            .hud { bottom: 15px; padding: 6px 16px; font-size: 11px; gap: 10px; }
+            .hud-title { font-size: 12px; }
+
+            /* 3. 展板查看按钮 */
+            #board-btn { bottom: 15px; right: 15px; padding: 8px 14px; font-size: 12px; gap: 6px; border-radius: 14px; }
+            #board-btn svg { width: 14px; height: 14px; }
+
+            /* 4. 滑动提示 */
+            #scroll-hint { bottom: 60px; font-size: 12px; letter-spacing: 1px; gap: 6px; }
+            #scroll-hint svg { width: 16px; height: 16px; }
+
+            /* 5. 蓝点交互箭头 */
+            .portal-arrow-core { width: 26px; height: 30px; border-radius: 8px; }
+            .portal-arrow-core svg { width: 16px; height: 16px; }
+            
+            /* 6. 右侧场景导航 */
+            .scene-nav { right: 15px; gap: 12px; transform: translateY(-50%) scale(0.75); transform-origin: right center; }
+
+            /* 7. Lightbox 全屏查看器 */
+            .lb-nav { font-size: 20px; padding: 12px; }
+            .lb-prev { left: 10px; }
+            .lb-next { right: 10px; }
+            .lb-close { top: 15px; right: 15px; font-size: 28px; }
+            .lb-indicator { bottom: 15px; font-size: 12px; }
+
+            /* 8. 留言板缩小 */
+            #guestbook-panel { top: 15px; height: 85vh; padding: 15px; width: 92vw; border-radius: 15px; }
+            .gb-header { font-size: 18px; margin-bottom: 12px; }
+            .gb-item { padding: 10px 15px; border-radius: 8px; }
+            .gb-item strong { font-size: 12px; }
+            .gb-item p { font-size: 13px; }
+            .gb-form { padding: 8px; gap: 8px; border-radius: 10px; }
+            .gb-form input { padding: 8px 10px; font-size: 12px; }
+            .gb-btn { padding: 0 15px; font-size: 12px; }
+            .gb-close { top: 15px; right: 20px; font-size: 24px; }
+        }
+
+        /* 针对极致横屏手机隐藏遮挡空间的留言板 */
         @media screen and (max-height: 500px) and (orientation: landscape) {
-            .hud { bottom: 20px; padding: 8px 20px; font-size: 12px; }
-            .hud-title { font-size: 13px; }
-            #board-btn { bottom: 20px; right: 20px; padding: 10px 18px; font-size: 13px; }
-            .scene-nav { display: none; }
             #guestbook-panel { display: none !important; }
-            #scroll-hint { bottom: 80px; font-size: 13px; }
-            #guestbook-panel { top: 20px; height: 85vh; padding: 15px; }
-            .gb-header { font-size: 20px; margin-bottom: 10px; }
-            .gb-form { padding: 8px; }
-            .upload-card { padding: 30px; border-radius: 20px; }
-            .upload-card h1 { font-size: 32px; }
         }
     </style>
 </head>

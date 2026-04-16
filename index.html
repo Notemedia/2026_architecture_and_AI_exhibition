@@ -477,86 +477,98 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* 留言板整体窗口 - 更加紧凑 */
         #guestbook-panel {
             position: fixed;
             top: 40px;
             left: 50%;
             transform: translateX(-50%) translateY(-20px);
-            width: 800px;
-            max-width: 90vw;
-            height: 70vh;
-            background: var(--glass-bg);
+            width: 500px; /* 缩小宽度 */
+            max-width: 85vw;
+            height: 55vh; /* 降低高度 */
+            background: rgba(20, 20, 20, 0.7); /* 稍微加深背景提高文字可读性 */
             backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             z-index: 90;
             display: flex;
             flex-direction: column;
-            padding: 30px;
+            padding: 20px; /* 缩小内边距 */
             opacity: 0;
             pointer-events: none;
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         #guestbook-panel.visible {
             opacity: 1;
             pointer-events: auto;
             transform: translateX(-50%) translateY(0);
         }
+
         .gb-header {
-            font-size: 24px;
+            font-size: 18px; /* 减小标题 */
             font-weight: 500;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             text-align: center;
+            color: var(--accent-color);
         }
+
         .gb-list {
             flex: 1;
             overflow-y: auto;
-            margin-bottom: 20px;
-            padding-right: 10px;
+            margin-bottom: 12px;
+            padding-right: 5px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px; /* 缩小留言间距 */
         }
         .gb-list::-webkit-scrollbar { width: 6px; }
         .gb-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .gb-item {
-            background: rgba(255,255,255,0.05);
-            padding: 15px 20px;
-            border-radius: 12px;
-            border-left: 3px solid var(--accent-color);
-        }
-        .gb-item strong { display: block; color: #fff; margin-bottom: 5px; font-size: 14px;}
-        .gb-item p { margin: 0; font-size: 16px; line-height: 1.5; color: #ddd; }
-        .gb-item span { font-size: 11px; color: #666; float: right; }
 
+        .gb-item {
+            background: rgba(255,255,255,0.03);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border-left: 2px solid var(--accent-color);
+        }
+
+        .gb-item strong { display: block; color: #fff; margin-bottom: 2px; font-size: 13px;}
+        .gb-item p { margin: 0; font-size: 14px; line-height: 1.4; color: #ccc; }
+        .gb-item span { font-size: 10px; color: #555; float: right; }
+
+        /* 留言表单 - 紧凑排列 */
         .gb-form {
             display: flex;
-            gap: 15px;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 15px;
+            gap: 10px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 12px;
         }
+
         .gb-form input {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             color: white;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 15px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
             outline: none;
             transition: 0.3s;
         }
+
         .gb-form input:focus { border-color: var(--accent-color); }
-        .gb-form input[type="text"] { flex: 1; }
-        .gb-form input.name-input { width: 120px; }
+        .gb-form input.name-input { width: 80px; } /* 缩小姓名框 */
+        .gb-form input[type="text"]:not(.name-input) { flex: 1; }
+
         .gb-btn {
             background: var(--accent-color);
             color: white;
             border: none;
-            padding: 0 25px;
-            border-radius: 8px;
+            padding: 0 15px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 13px;
             font-weight: 600;
             transition: 0.3s;
         }
@@ -565,9 +577,9 @@
         
         .gb-close {
             position: absolute;
-            top: 20px;
-            right: 25px;
-            font-size: 28px;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
             color: var(--text-dim);
             cursor: pointer;
             transition: 0.3s;
@@ -599,13 +611,21 @@
             .hud-title { font-size: 13px; }
             #board-btn { bottom: 20px; right: 20px; padding: 10px 18px; font-size: 13px; }
             .scene-nav { display: none; }
-            #guestbook-panel { display: none !important; }
             #scroll-hint { bottom: 80px; font-size: 13px; }
-            #guestbook-panel { top: 20px; height: 85vh; padding: 15px; }
-            .gb-header { font-size: 20px; margin-bottom: 10px; }
-            .gb-form { padding: 8px; }
             .upload-card { padding: 30px; border-radius: 20px; }
             .upload-card h1 { font-size: 32px; }
+            
+            /* 针对手机横屏的极致压缩留言板 */
+            #guestbook-panel {
+                top: 10px;
+                height: 80vh;
+                width: 450px;
+                padding: 12px;
+            }
+            .gb-header { font-size: 16px; margin-bottom: 8px; }
+            .gb-item { padding: 8px 12px; }
+            .gb-item p { font-size: 13px; }
+            .gb-form { padding: 6px; }
         }
 
         @media screen and (max-width: 950px), screen and (max-height: 500px) {
@@ -701,35 +721,34 @@
 <!-- ================= Firebase 云端数据库模块 ================= -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     let db, auth, appId, guestbookCollectionRef;
 
     async function initFirebase() {
         try {
-            // 在您实际的 Github Pages 中，请将下面的 '{}' 替换为您自己在 Firebase 控制台获取的 Config 对象
-            // 这里我们使用系统预设变量，保证在目前的协作环境中可以直接运行
-            const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-            const firebaseConfig = JSON.parse(configStr);
-            
-            if (Object.keys(firebaseConfig).length === 0) {
-                console.warn("尚未配置 Firebase Config，已自动降级为本地留言板模式。");
-                return;
-            }
+            // 这里已经填入了你专属的 API 密钥配置
+            const firebaseConfig = {
+                apiKey: "AIzaSyB48k9hVI1Cv601xCcGv28NDXt9zFQCpY4",
+                authDomain: "notemedia-project.firebaseapp.com",
+                projectId: "notemedia-project",
+                storageBucket: "notemedia-project.firebasestorage.app",
+                messagingSenderId: "751255657253",
+                appId: "1:751255657253:web:fdb638c3981707a9f5d8cc",
+                measurementId: "G-LJ9L7CGE8Q"
+            };
 
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
-            appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            
+            // 固定一个项目 ID 作为数据库的存储路径
+            appId = 'exhibition-2026';
 
-            // 首先进行静默的身份认证 (给每个浏览器的观众分发一个临时 ID)
+            // 进行静默的匿名身份认证 (给每个浏览器的观众分发一个临时 ID)
             const initAuth = async () => {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             };
             await initAuth();
 
@@ -1162,9 +1181,8 @@
             preloadSceneBoards(currentSceneIndex + 1);
             preloadSceneBoards(currentSceneIndex - 1);
 
-            const isMobile = window.innerWidth <= 1024;
             const guestbook = document.getElementById('guestbook-panel');
-            if (currentSceneIndex === 14 && !isMobile) {
+            if (currentSceneIndex === 14) {
                 if (!window.guestbookManuallyClosed) {
                     guestbook.classList.add('visible');
                 }
@@ -1357,8 +1375,8 @@
         
         let displayData = [...data];
         if(displayData.length === 0) {
-            displayData.push({name: "建筑初学者", content:"非常震撼的模型展示，AI与手绘的结合让我看到了新出路。", timeStr: "1天前"});
-            displayData.push({name: "数字参数师", content:"很喜欢场景10的大幅渲染！材质阻尼感交互也做得很棒。", timeStr: "3小时前"});
+            displayData.push({name: "建筑初学者", content:"非常震撼的模型展示，AI与手绘的结合让我看到了新出路。", timeStr: "刚刚"});
+            displayData.push({name: "数字参数师", content:"很喜欢场景10的大幅渲染！材质阻尼感交互也做得很棒。", timeStr: "刚刚"});
         }
 
         displayData.forEach(item => {
